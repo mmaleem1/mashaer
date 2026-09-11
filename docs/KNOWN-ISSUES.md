@@ -38,14 +38,14 @@ Context:
 
 Workaround:
 - In browser console:
-  - `localStorage.removeItem('godsEyeView.v6.panelPos.cctv-panel');`
-  - `localStorage.removeItem('godsEyeView.v6.panelCollapsed.cctv-panel');`
+  - `localStorage.removeItem('mashaer.v6.panelPos.cctv-panel');`
+  - `localStorage.removeItem('mashaer.v6.panelCollapsed.cctv-panel');`
   - `location.reload();`
 
 Related keys (current versions):
-- Panel positions: `godsEyeView.v7.panelPos.<panel-id>` (re-versioned 2026-06-10)
-- Panel collapsed state: `godsEyeView.v6.panelCollapsed.<panel-id>`
-- CCTV calibration: `godsEyeView.cctv.calibration.v2`
+- Panel positions: `mashaer.v7.panelPos.<panel-id>` (re-versioned 2026-06-10)
+- Panel collapsed state: `mashaer.v6.panelCollapsed.<panel-id>`
+- CCTV calibration: `mashaer.cctv.calibration.v2`
 
 ---
 

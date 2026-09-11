@@ -280,9 +280,9 @@ function renderRecords({ claimSelection = false } = {}) {
         height: surfaceHeightM,
       } : undefined,
     });
-    entity.gevTrackedId = `installations:${record.id}`;
-    entity.gevDisplayPosition = () => displayPosition;
-    entity.gevLabelModel = {
+    entity.mashaerTrackedId = `installations:${record.id}`;
+    entity.mashaerDisplayPosition = () => displayPosition;
+    entity.mashaerLabelModel = {
       title: record.name || 'MAPPED INSTALLATION',
       details: [String(record.class || 'installation').replaceAll('_', ' ').toUpperCase()],
       accent: COLOR_BY_CLASS[record.class] || '#9ca6b0',

@@ -95,6 +95,18 @@ export const DATA_CREDITS = [
       '(CC BY 4.0)',
   },
   {
+    // The Makkah/Madinah presets carry their OWN entry rather than leaning on the
+    // OSM credits above: those exist for other layers, and a licence obligation
+    // met only by coincidence is one that disappears the moment that layer does.
+    key: 'makkah-madinah-presets',
+    html:
+      'Makkah / Madinah camera presets: ' +
+      '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a> ' +
+      'via Nominatim (ODbL 1.0); elevations ' +
+      '<a href="https://open-meteo.com/en/licence" target="_blank" rel="noopener">by Open-Meteo.com</a> ' +
+      '(CC BY 4.0)',
+  },
+  {
     key: 'google-news-rss',
     html:
       'Cockpit regional headlines: ' +

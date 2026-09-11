@@ -185,6 +185,35 @@ const CITY_ALIASES = new Map([
   ['washington', 'dc'],
   ['washington dc', 'dc'],
   ['washington d.c.', 'dc'],
+  // Makkah/Madinah each have a long-standing English spelling and a transliterated
+  // one; an operator may say either, and the anglicised form is still the commoner
+  // one in speech-to-text output.
+  ['mecca', 'makkah'],
+  ['makkah al-mukarramah', 'makkah'],
+  ['medina', 'madinah'],
+  ['al madinah', 'madinah'],
+  ['medinah', 'madinah'],
+  ['holy sites', 'mashair'],
+  ['the holy sites', 'mashair'],
+  // Arabic and Urdu, keyed on the FOLDED form (see foldPlaceName): `مكة` and
+  // `مکہ` both fold to `مكه`, so each entry below serves both scripts at once.
+  // Entries appear with and without the definite article, because a speaker
+  // says "المدينة المنورة" but a transcriber often drops the "ال".
+  // EVERY key here must already BE its own folded form, or it can never match —
+  // lookups fold first. `mashaerActions.test.mjs` asserts exactly that.
+  ['مكه', 'makkah'],
+  ['مكه المكرمه', 'makkah'],
+  ['مكه مكرمه', 'makkah'],
+  ['ام القري', 'makkah'],
+  ['المدينه المنوره', 'madinah'],
+  ['مدينه المنوره', 'madinah'],
+  ['مدينه منوره', 'madinah'],
+  ['المدينه', 'madinah'],
+  ['مدينه', 'madinah'],
+  ['طيبه', 'madinah'],
+  ['المشاعر المقدسه', 'mashair'],
+  ['المشاعر', 'mashair'],
+  ['مشاعر', 'mashair'],
 ]);
 
 // Basemap stack vocabulary. Switching requires an explicit stack name
@@ -287,10 +316,10 @@ export function readLayerLifecycleSummary(dataManager, layerId, { fallbackEnable
   };
 }
 
-export function createGevActionRunner({ viewer, styleManager, dataManager, sceneDirector = null, annotations = null }) {
+export function createMashaerActionRunner({ viewer, styleManager, dataManager, sceneDirector = null, annotations = null }) {
   installViewTargetPrewarm(viewer);
   initCameraVerbs(viewer, getViewTargetCartesian);
-  return async function runGevAction(name, rawArgs = {}, runOptions = {}) {
+  return async function runMashaerAction(name, rawArgs = {}, runOptions = {}) {
     const args = rawArgs && typeof rawArgs === 'object' ? rawArgs : {};
     const current = () => !runOptions.signal?.aborted
       && (typeof runOptions.isCurrent !== 'function' || runOptions.isCurrent());
@@ -449,7 +478,7 @@ export function createGevActionRunner({ viewer, styleManager, dataManager, scene
           longitude: Number(args.longitude),
         } : {}),
       };
-      const layer = await runGevAction('set_layer_visibility', {
+      const layer = await runMashaerAction('set_layer_visibility', {
         layerId,
         enabled: true,
       }, runOptions);
@@ -464,7 +493,7 @@ export function createGevActionRunner({ viewer, styleManager, dataManager, scene
         };
       }
 
-      const location = await runGevAction('fly_to_location', locationArgs, runOptions);
+      const location = await runMashaerAction('fly_to_location', locationArgs, runOptions);
       if (location?.ok !== true || !current()) {
         return {
           ok: false,
@@ -922,7 +951,7 @@ export function createGevActionRunner({ viewer, styleManager, dataManager, scene
       return clearAnnotations(annotations);
     }
 
-    throw new Error(`Unknown GEV tool: ${name}`);
+    throw new Error(`Unknown MASHAER tool: ${name}`);
   };
 }
 
@@ -1946,8 +1975,8 @@ export async function getBasemapLabelContext(viewer) {
 }
 
 function installViewTargetPrewarm(viewer) {
-  if (viewer.__gevViewTargetPrewarmInstalled) return;
-  viewer.__gevViewTargetPrewarmInstalled = true;
+  if (viewer.__mashaerViewTargetPrewarmInstalled) return;
+  viewer.__mashaerViewTargetPrewarmInstalled = true;
   let timer = null;
   let reportedPrewarmFailure = false;
   viewer.camera.moveEnd.addEventListener(() => {
@@ -2187,10 +2216,10 @@ function focusDataLayerRow(layerId) {
   const row = document.querySelector(`#data-toggles [data-layer-id="${CSS.escape(layerId)}"]`);
   if (!row) return null;
   row.scrollIntoView({ block: 'center', behavior: 'smooth' });
-  row.classList.remove('gev-voice-focus');
+  row.classList.remove('mashaer-voice-focus');
   void row.offsetWidth;
-  row.classList.add('gev-voice-focus');
-  window.setTimeout(() => row.classList.remove('gev-voice-focus'), 3000);
+  row.classList.add('mashaer-voice-focus');
+  window.setTimeout(() => row.classList.remove('mashaer-voice-focus'), 3000);
   const name = row.querySelector('.data-name')?.textContent?.trim() || layerId;
   return { id: layerId, name };
 }
@@ -2346,11 +2375,54 @@ async function flyToRequestedLocation(viewer, args, {
   throw new Error('fly_to_location needs a locationId, query, or latitude/longitude');
 }
 
+/**
+ * Fold an Arabic-script place name to one canonical form.
+ *
+ * Arabic and Urdu write the SAME names with different code points, and a
+ * speech-to-text engine picks whichever its language model prefers — so a fixed
+ * alias table matches almost nothing without this. `مكة` (Arabic) and `مکہ`
+ * (Urdu) differ only by keheh-for-kaf and heh-goal-for-teh-marbuta; folded, both
+ * become `مكه` and one alias entry serves both scripts.
+ *
+ * What is folded, and why:
+ *  - harakat/tanwin and the superscript alef — optional vowel marks a
+ *    transcriber may or may not emit for the same word
+ *  - tatweel, a pure typographic stretch with no phonetic value
+ *  - alef forms (أ إ آ ٱ) → ا, since hamza placement is inconsistently written
+ *  - keheh ک → kaf ك, farsi/urdu yeh ی and alef maksura ى → yeh ي
+ *  - teh marbuta ة and heh goal ہ ۀ → heh ه, the Makkah/Madinah case exactly
+ *
+ * Latin input passes through lowercased and space-collapsed, so one normalizer
+ * serves every language the voice controller accepts.
+ *
+ * @param {string} value
+ * @returns {string}
+ */
+export function foldPlaceName(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    // Explicit code-point ranges, NOT a literal span: a literal range from
+    // U+064B to U+0670 also swallows the Arabic-Indic digits U+0660-U+0669,
+    // silently deleting numerals from any query that carries them.
+    .replace(/[\u064B-\u065F\u0670]/g, '')
+    .replace(/ـ/g, '')
+    .replace(/[أإآٱ]/g, 'ا')
+    .replace(/ک/g, 'ك')
+    .replace(/[یى]/g, 'ي')
+    .replace(/[ةہۀ]/g, 'ه')
+    .replace(/\s+/g, ' ');
+}
+
 function normalizeLocationId(value) {
   const raw = String(value || '').trim().toLowerCase();
   if (!raw) return null;
   if (CITY_POIS[raw]) return raw;
   if (CITY_ALIASES.has(raw)) return CITY_ALIASES.get(raw);
+  // Arabic/Urdu are matched on the folded form, so one entry covers both
+  // scripts and any spelling that differs only in vowel marks.
+  const folded = foldPlaceName(raw);
+  if (CITY_ALIASES.has(folded)) return CITY_ALIASES.get(folded);
   return null;
 }
 
@@ -2643,7 +2715,7 @@ async function getBasemapContext(viewer, viewTarget = null) {
     );
     return {
       source: 'Google Photorealistic 3D Tiles / Cesium basemap',
-      hasGoogle3DTiles: Boolean(window.__godsEyeView?.tileset),
+      hasGoogle3DTiles: Boolean(window.__mashaer?.tileset),
       viewScale,
       viewportSamples: samples,
       viewportPlaces,
@@ -2679,7 +2751,7 @@ async function getBasemapContext(viewer, viewTarget = null) {
   const nearbyPlaces = resolvedNearbyPlaces || [];
   return {
     source: 'Google Photorealistic 3D Tiles / Cesium basemap',
-    hasGoogle3DTiles: Boolean(window.__godsEyeView?.tileset),
+    hasGoogle3DTiles: Boolean(window.__mashaer?.tileset),
     viewScale,
     viewportSamples: samples,
     viewportPlaces,
@@ -3145,7 +3217,7 @@ function approximateCoordinateDistanceSq(latA, lonA, latB, lonB) {
 function logSlowContext(startedAt, scope) {
   const durationMs = Math.round(performance.now() - startedAt);
   if (durationMs >= 500) {
-    console.info(`[GEV Voice] ${scope} scene context completed in ${durationMs}ms`);
+    console.info(`[MASHAER Voice] ${scope} scene context completed in ${durationMs}ms`);
   }
 }
 
@@ -3163,9 +3235,9 @@ function dominantValue(values) {
 
 function summarizeEntity(viewer, entity, { includeProperties = false } = {}) {
   const now = Cesium.JulianDate.now();
-  if (entity.__gevContextId) {
-    const store = window.__gevContextStore;
-    const record = store?.entities?.get(entity.__gevContextId);
+  if (entity.__mashaerContextId) {
+    const store = window.__mashaerContextStore;
+    const record = store?.entities?.get(entity.__mashaerContextId);
     if (record) return summarizeContextRecord(record, { includeProperties });
   }
   const props = propertyObject(entity);

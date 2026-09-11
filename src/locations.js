@@ -1,5 +1,6 @@
 import * as Cesium from 'cesium';
 import { viewportBias, placesNearViewRecovery } from './annotations/annotationResolver.js';
+import { MAKKAH_PRESETS } from './data/makkahPresets.generated.js';
 
 /**
  * Points of Interest per city.
@@ -117,12 +118,17 @@ export const CITY_POIS = {
       { name: 'Jefferson Memorial', lat: 38.8814, lon: -77.0365, alt: 400, pitch: -30, heading: 0, buildingHeight: 25 },
     ],
   },
+  // Makkah, Madinah and the pilgrimage sites are GENERATED rather than written
+  // here: their coordinates come from OpenStreetMap and their camera framing
+  // from each feature's real extent. Edit scripts/makkah-places.json and run
+  // `npm run build:makkah-presets` — never edit the generated file.
+  ...MAKKAH_PRESETS,
 };
 
 /**
  * Absolute full-earth camera preset for the zoom_to_globe voice tool. The height
  * must stay inside the app's 'global' view-scale band (>12,000 km — classifyViewScale
- * in gevActions.js) so downstream context/screenshot policy treats it as a globe view,
+ * in mashaerActions.js) so downstream context/screenshot policy treats it as a globe view,
  * and under the fly_to_location rangeM ceiling (20,000 km).
  */
 export const GLOBE_VIEW = Object.freeze({
@@ -424,7 +430,7 @@ export async function searchAndFlyTo(viewer, query, options = {}) {
     // city, every state, every country, parks and streets — frames untouched.
     //
     // EXCEPT when the caller asked for an overview outright ("show me an overview
-    // of Hawaii", voice `viewMode: 'overview'` — gevActions.js). That is an explicit
+    // of Hawaii", voice `viewMode: 'overview'` — mashaerActions.js). That is an explicit
     // request for the whole administrative area, so the sanity gate stands down:
     // it exists to guess what an ambiguous place name meant, and there is nothing
     // left to guess once the user has said.

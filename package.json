@@ -1,18 +1,18 @@
 {
-  "name": "gods-eye-view",
+  "name": "mashaer",
   "private": true,
   "version": "0.1.1",
-  "description": "A real-time intelligence console for planet Earth — photorealistic 3D globe, live aircraft/ships/satellites/earthquakes/CCTV, and hands-free voice control. Runs in a browser.",
+  "description": "Mashaer \u2014 a photorealistic 3D globe viewer with Makkah and Madinah camera presets and self-flying tours.",
   "type": "module",
   "license": "MIT",
   "author": "Bilawal Sidhu",
-  "homepage": "https://github.com/bilawalsidhu/gods-eye-view#readme",
+  "homepage": "https://github.com/mmaleem1/mashaer#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bilawalsidhu/gods-eye-view.git"
+    "url": "https://github.com/mmaleem1/mashaer.git"
   },
   "bugs": {
-    "url": "https://github.com/bilawalsidhu/gods-eye-view/issues"
+    "url": "https://github.com/mmaleem1/mashaer/issues"
   },
   "engines": {
     "node": ">=24.14.0 <25 || >=26 <27"
@@ -40,7 +40,9 @@
     "preview": "vite preview",
     "test": "node scripts/run-unit-tests.mjs",
     "test:track": "node scripts/track-regression.mjs",
-    "qa:map-source-tray": "node scripts/qa-map-source-tray.mjs"
+    "qa:map-source-tray": "node scripts/qa-map-source-tray.mjs",
+    "build:makkah-presets": "node scripts/build-makkah-presets.mjs",
+    "check:makkah-presets": "node scripts/build-makkah-presets.mjs --check"
   },
   "dependencies": {
     "@mapbox/vector-tile": "^3.0.0",

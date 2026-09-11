@@ -24,7 +24,7 @@ import {
 /** @constant {string} Key code used to abort a running scene */
 const ESCAPE_KEY = 'Escape';
 /** @constant {string} localStorage key for the serialized project */
-const STORAGE_KEY = 'godsEyeView.sceneProject.v2';
+const STORAGE_KEY = 'mashaer.sceneProject.v2';
 /** @constant {number} Current schema version for project migration */
 const PROJECT_VERSION = 3;
 /** @constant {number} Fallback camera flight duration per shot (seconds) */
@@ -186,6 +186,39 @@ function createDefaultProject() {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     scenes: SCENE_RECIPES.map(recipeToScene),
+    seededRecipeIds: SCENE_RECIPES.map((recipe) => recipe.id),
+  };
+}
+
+/**
+ * Add built-in recipes this project has never been offered.
+ *
+ * Built-ins were only ever seeded into a BRAND NEW project, so a saved project
+ * — which every returning user has — never saw a recipe shipped after it was
+ * created. `seededRecipeIds` records what has already been offered, which is
+ * what separates "new in this release" from "the user deleted that one": a
+ * deleted scene stays deleted, because its id is still in the seeded list.
+ *
+ * Projects saved before this field existed have no list. Seeding them from the
+ * scene ids they currently hold is the safe read — those ARE the built-ins they
+ * were given, and anything a user captured themselves carries a `scene_`-prefixed
+ * uid that no recipe id collides with.
+ *
+ * @param {Array<Object>} scenes - Normalized scenes from storage.
+ * @param {Array<string>|undefined} rawSeeded - Previously recorded recipe ids.
+ * @returns {{scenes: Array<Object>, seededRecipeIds: Array<string>}}
+ */
+function seedNewRecipes(scenes, rawSeeded) {
+  const alreadySeeded = new Set(
+    Array.isArray(rawSeeded) ? rawSeeded : scenes.map((scene) => scene.id),
+  );
+  const additions = SCENE_RECIPES
+    .filter((recipe) => !alreadySeeded.has(recipe.id))
+    .map(recipeToScene);
+
+  return {
+    scenes: additions.length ? [...scenes, ...additions] : scenes,
+    seededRecipeIds: [...new Set([...alreadySeeded, ...SCENE_RECIPES.map((recipe) => recipe.id)])],
   };
 }
 
@@ -273,11 +306,14 @@ function normalizeProject(rawProject) {
     return createDefaultProject();
   }
 
+  const seeded = seedNewRecipes(scenes, rawProject.seededRecipeIds);
+
   return {
     version: PROJECT_VERSION,
     createdAt: rawProject.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    scenes,
+    scenes: seeded.scenes,
+    seededRecipeIds: seeded.seededRecipeIds,
   };
 }
 

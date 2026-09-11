@@ -1,0 +1,312 @@
+{
+  "_comment": [
+    "SOURCE OF TRUTH for the Makkah / Madinah camera presets.",
+    "Edit THIS file, then run `npm run build:makkah-presets` to regenerate",
+    "src/data/makkahPresets.generated.js. Never hand-edit the generated file.",
+    "",
+    "Every `query` is geocoded against OpenStreetMap Nominatim BOUNDED to the",
+    "preset's region box, because the unbounded names collide: plain",
+    "'العزيزية' resolves to the Al-Aziziyah in TAIF, not the Makkah district.",
+    "",
+    "Per-place overrides are optional:",
+    "  structureHeight — height of the built landmark's visual centre above ITS",
+    "                    OWN ground, in metres. Districts leave it at 0; a tower",
+    "                    needs it or the camera targets the pavement.",
+    "  heading         — fixed camera bearing where one framing is clearly right",
+    "                    (0=N, 90=E, 180=S, 270=W). Omitted = north-up.",
+    "  radius          — subject radius in metres, overriding the OSM extent.",
+    "                    REQUIRED for anything mapped as an OSM node (every",
+    "                    summit here): Nominatim hands a node a placeholder box",
+    "                    with nothing to do with the real subject's size.",
+    "  pitch, range    — hard overrides that switch OFF auto-framing for that",
+    "                    place. Use sparingly; the extent-based default is better",
+    "                    than a guess for anything area-shaped."
+  ],
+  "regions": {
+    "makkah": {
+      "viewbox": "39.72,21.55,40.05,21.28"
+    },
+    "madinah": {
+      "viewbox": "39.50,24.58,39.72,24.38"
+    }
+  },
+  "presets": [
+    {
+      "id": "makkah",
+      "name": "Makkah",
+      "region": "makkah",
+      "places": [
+        {
+          "label": "Kaaba / Masjid al-Haram",
+          "query": "الكعبة",
+          "structureHeight": 7,
+          "heading": 180,
+          "radius": 250
+        },
+        {
+          "label": "Makkah Royal Clock Tower",
+          "query": "أبراج الساعة",
+          "structureHeight": 200,
+          "heading": 30,
+          "radius": 320
+        },
+        {
+          "label": "Jabal al-Nour",
+          "query": "جبل النور",
+          "heading": 225,
+          "radius": 900
+        },
+        {
+          "label": "Jabal Thawr",
+          "query": "جبل ثور",
+          "heading": 315,
+          "radius": 700
+        },
+        {
+          "label": "Masjid Aisha (Taneem)",
+          "query": "مسجد التنعيم",
+          "structureHeight": 12,
+          "heading": 90,
+          "radius": 150
+        }
+      ]
+    },
+    {
+      "id": "makkah-central",
+      "name": "Makkah Central",
+      "region": "makkah",
+      "places": [
+        {
+          "label": "Ajyad",
+          "query": "أجياد"
+        },
+        {
+          "label": "Al Aziziyah",
+          "query": "العزيزية"
+        },
+        {
+          "label": "Al Shisha",
+          "query": "الششة"
+        },
+        {
+          "label": "Al Ma'abdah",
+          "query": "المعابدة"
+        },
+        {
+          "label": "Jarwal",
+          "query": "جرول"
+        }
+      ]
+    },
+    {
+      "id": "makkah-south",
+      "name": "Makkah South",
+      "region": "makkah",
+      "places": [
+        {
+          "label": "Batha Quraish",
+          "query": "بطحاء قريش"
+        },
+        {
+          "label": "Al Naseem",
+          "query": "النسيم"
+        },
+        {
+          "label": "Al Awali",
+          "query": "العوالي"
+        },
+        {
+          "label": "Al Hijrah",
+          "query": "الهجرة"
+        },
+        {
+          "label": "Al Kaakiyah",
+          "query": "الكعكية"
+        }
+      ]
+    },
+    {
+      "id": "makkah-west",
+      "name": "Makkah West",
+      "region": "makkah",
+      "places": [
+        {
+          "label": "Al Zahir",
+          "query": "الزاهر"
+        },
+        {
+          "label": "Al Rusaifah",
+          "query": "الرصيفة"
+        },
+        {
+          "label": "Al Khalidiyah",
+          "query": "الخالدية"
+        },
+        {
+          "label": "Al Shawqiyah",
+          "query": "الشوقية"
+        },
+        {
+          "label": "Al Nuwariyah",
+          "query": "النوارية"
+        }
+      ]
+    },
+    {
+      "id": "mashair",
+      "name": "Holy Sites",
+      "region": "makkah",
+      "places": [
+        {
+          "label": "Mina",
+          "query": "منى مكة المكرمة"
+        },
+        {
+          "label": "Jamarat Bridge",
+          "query": "جسر الجمرات",
+          "structureHeight": 14,
+          "heading": 180,
+          "radius": 400
+        },
+        {
+          "label": "Muzdalifah",
+          "query": "مزدلفة"
+        },
+        {
+          "label": "Mount Arafat",
+          "query": "جبل الرحمة",
+          "heading": 270,
+          "radius": 450
+        },
+        {
+          "label": "Masjid Namirah",
+          "query": "مسجد نمرة",
+          "structureHeight": 15,
+          "heading": 45,
+          "radius": 250
+        }
+      ]
+    },
+    {
+      "id": "madinah",
+      "name": "Madinah",
+      "region": "madinah",
+      "places": [
+        {
+          "label": "Al-Masjid an-Nabawi",
+          "query": "المسجد النبوي",
+          "structureHeight": 18,
+          "heading": 0,
+          "radius": 300
+        },
+        {
+          "label": "Quba Mosque",
+          "query": "مسجد قباء",
+          "structureHeight": 12,
+          "heading": 315,
+          "radius": 150
+        },
+        {
+          "label": "Masjid al-Qiblatayn",
+          "query": "مسجد القبلتين المدينة المنورة",
+          "structureHeight": 12,
+          "heading": 90,
+          "radius": 130
+        },
+        {
+          "label": "Mount Uhud",
+          "query": "جبل أحد",
+          "heading": 0,
+          "radius": 2500
+        },
+        {
+          "label": "Jannat al-Baqi",
+          "query": "بقيع الغرقد",
+          "heading": 270,
+          "radius": 250
+        }
+      ]
+    }
+  ],
+  "tours": [
+    {
+      "id": "hajj-route",
+      "name": "The Hajj Route",
+      "description": "The pilgrimage in its ritual order: Haram, out to Mina, on to Arafah, back through Muzdalifah to the Jamarat, and home to the Haram.",
+      "beats": [
+        {
+          "preset": "makkah",
+          "poi": "Kaaba / Masjid al-Haram",
+          "holdS": 6,
+          "orbit": true
+        },
+        {
+          "preset": "mashair",
+          "poi": "Mina",
+          "holdS": 5
+        },
+        {
+          "preset": "mashair",
+          "poi": "Mount Arafat",
+          "holdS": 6,
+          "orbit": true
+        },
+        {
+          "preset": "mashair",
+          "poi": "Masjid Namirah",
+          "holdS": 4
+        },
+        {
+          "preset": "mashair",
+          "poi": "Muzdalifah",
+          "holdS": 5
+        },
+        {
+          "preset": "mashair",
+          "poi": "Jamarat Bridge",
+          "holdS": 5
+        },
+        {
+          "preset": "makkah",
+          "poi": "Kaaba / Masjid al-Haram",
+          "holdS": 8,
+          "orbit": true
+        }
+      ]
+    },
+    {
+      "id": "madinah-ziyarah",
+      "name": "Madinah Ziyarah",
+      "description": "The Prophet's Mosque and the sites around it.",
+      "beats": [
+        {
+          "preset": "madinah",
+          "poi": "Al-Masjid an-Nabawi",
+          "holdS": 7,
+          "orbit": true
+        },
+        {
+          "preset": "madinah",
+          "poi": "Jannat al-Baqi",
+          "holdS": 4
+        },
+        {
+          "preset": "madinah",
+          "poi": "Quba Mosque",
+          "holdS": 5
+        },
+        {
+          "preset": "madinah",
+          "poi": "Masjid al-Qiblatayn",
+          "holdS": 4
+        },
+        {
+          "preset": "madinah",
+          "poi": "Mount Uhud",
+          "holdS": 6,
+          "orbit": true
+        }
+      ]
+    }
+  ]
+}

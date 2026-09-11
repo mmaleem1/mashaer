@@ -650,8 +650,8 @@ test('the DISPLAY rail starts collapsed on a first run, and a stored choice wins
 
 test('the voice TOOL SCHEMA is byte-identical to main — the mission mapping is instructions only', () => {
   const src = fs.readFileSync(new URL('../vite.config.js', import.meta.url), 'utf8');
-  const start = src.indexOf('const GEV_REALTIME_TOOLS = [');
-  assert.ok(start > 0, 'GEV_REALTIME_TOOLS must still be a single literal array');
+  const start = src.indexOf('const MASHAER_REALTIME_TOOLS = [');
+  assert.ok(start > 0, 'MASHAER_REALTIME_TOOLS must still be a single literal array');
   const end = src.indexOf('\n];\n', start);
   const block = src.slice(start, end + 4);
 
@@ -660,10 +660,19 @@ test('the voice TOOL SCHEMA is byte-identical to main — the mission mapping is
   // exactly the kind of schema change this pin exists to make loud). The
   // guarded claim is unchanged: first-run missions ride existing tools, and
   // any NEW drift from this recorded schema still fails here.
-  assert.equal(block.length, 31189, 'tool schema byte length drifted from the pinned release schema');
+  // Re-pinned again for the Makkah/Madinah presets AND the Mashaer rebrand.
+  // Two deliberate edits, both the kind this pin exists to make loud:
+  //   1. the six new city ids (makkah, makkah-central, makkah-south,
+  //      makkah-west, mashair, madinah) joined the locationId enum on
+  //      fly_to_location, select_nearest_aircraft and control_radio;
+  //   2. the Mashaer rebrand rewrote the product name inside tool
+  //      DESCRIPTIONS, and renamed the array itself to
+  //      MASHAER_REALTIME_TOOLS along with every GEV_* identifier.
+  // No tool was added or removed, and no tool's behaviour changed.
+  assert.equal(block.length, 31427, 'tool schema byte length drifted from the pinned release schema');
   assert.equal(
     crypto.createHash('sha256').update(block).digest('hex'),
-    '73aaabdb169a5478893d28688f327a21edd32ed3ec16fc6287bd944ed77beecf',
+    '40eea9e8b0ef07b87725a03a32af894753547752403a7533ad98f9e616b239a0',
     'the first-run missions must ride EXISTING tools: no schema edit, no cache bust',
   );
 

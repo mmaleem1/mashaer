@@ -3,7 +3,9 @@
  * Each recipe is deterministic so repeated runs produce similar footage.
  */
 
-export const SCENE_RECIPES = [
+import { MAKKAH_SCENE_RECIPES } from '../data/makkahPresets.generated.js';
+
+const BUILT_IN_RECIPES = [
   {
     id: 'flights-radar',
     title: 'Global Flights Radar',
@@ -160,6 +162,14 @@ export const SCENE_RECIPES = [
     ],
   },
 ];
+
+/**
+ * The shipped recipes: the hand-authored clip scenes above, plus the Makkah and
+ * Madinah tours generated from scripts/makkah-places.json. The generated ones
+ * are appended rather than inlined so a coordinate never has to be hand-typed
+ * twice — they are built from the same OSM lookups as the camera presets.
+ */
+export const SCENE_RECIPES = [...BUILT_IN_RECIPES, ...MAKKAH_SCENE_RECIPES];
 
 export function getSceneRecipeById(id) {
   return SCENE_RECIPES.find((recipe) => recipe.id === id) || null;
