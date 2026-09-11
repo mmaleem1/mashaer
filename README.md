@@ -6,6 +6,8 @@
 
 **Mashaer is a fork of [God's Eye View](https://github.com/bilawalsidhu/gods-eye-view) by [Bilawal Sidhu](https://github.com/bilawalsidhu), used under the MIT License.** The original copyright notice is kept in [LICENSE](LICENSE). This fork adds camera presets and self-flying tours for Makkah, Madinah and the pilgrimage sites; everything else is upstream's work. It is not affiliated with or endorsed by the original project.
 
+**Retired from the interface in this fork (2026-09-11): CCTV, Context and Radio.** They are upstream surveillance features with no role in a Makkah/Madinah client. Sections further down still describe them, because this README is largely upstream's and those descriptions are accurate about the *code* — which is untouched and re-enabled by deleting one clearly marked block in `style.css`. But the panels are not on screen, so any step below that says to open the **CCTV**, **CONTEXT** or **RADIO** panel does not apply to Mashaer as shipped.
+
 Photorealistic 3D globe. Live aircraft, ships, satellites, earthquakes, traffic, and public cameras. Hands-free voice control powered by a realtime AI agent.
 
 *No place left behind.*
@@ -18,15 +20,15 @@ Photorealistic 3D globe. Live aircraft, ships, satellites, earthquakes, traffic,
 
 ▶️ **Built on the project behind the viral God's Eye View series** *(formerly WorldView)* — [5M+ on YouTube](https://youtube.com/playlist?list=PL6qSg2I-7_koPbDnSMo0QeeHX_RknA2uv&si=nBGYMoHWQw41v93Q) · [25M+ across socials](https://www.google.com/search?q=god%27s+eye+view)
 
-[![Reached #1 on GitHub Trending](https://img.shields.io/badge/%231_GitHub_Trending-thank_you!-F0A63C?style=flat-square&logo=github)](https://x.com/bilawalsidhu/status/2093798887815348521)
+<sub>**Everything in this section belongs to God's Eye View, the upstream project — not to Mashaer.** It was inherited with the fork and is kept because it is the origin of this codebase, but Mashaer has earned none of it and claims none of it.</sub>
 
-🏆 **Reached #1 on GitHub Trending, daily and weekly · August 2026**
+> 🏆 **#1 on GitHub Trending, daily and weekly · August 2026** — [God's Eye View](https://x.com/bilawalsidhu/status/2093798887815348521)
+>
+> **[#8 Product of the Day](https://www.producthunt.com/products/god-s-eye-view?launch=god-s-eye-view)** · Hunted by Chris Messina, creator of the hashtag
+>
+> *“pretty cool”* — [Brendan Eich](https://x.com/BrendanEich/status/2094592096401490266), creator of JavaScript and co-founder of Mozilla and Brave · Featured on **[Pinokio](https://pinokio.co/posts/01m1m4p9xxm3qw7dnnpj2wr93g)**
 
-**[#8 Product of the Day](https://www.producthunt.com/products/god-s-eye-view?launch=god-s-eye-view)** · Hunted by Chris Messina, creator of the hashtag
-
-*“pretty cool”* — [Brendan Eich](https://x.com/BrendanEich/status/2094592096401490266), creator of JavaScript and co-founder of Mozilla and Brave · Featured on **[Pinokio](https://pinokio.co/posts/01m1m4p9xxm3qw7dnnpj2wr93g)**
-
-⚡ **Start without API keys.** Install with [Pinokio](https://pinokio.co/apps/github-com-bilawalsidhu-gods-eye-view) or run locally from the terminal. Add optional keys inside the app. **[→ Quick Start](#-quick-start)**
+⚡ **Start without API keys.** Clone and run from the terminal; add optional keys inside the app. **[→ Quick Start](#-quick-start)**
 
 </div>
 
@@ -93,28 +95,30 @@ non-commercial use, or a **Google Maps key** for the direct, metered route and
 in-app place search. Provider terms and quotas apply. Add keys through the
 app's **POWER UP** panel; [Keys & Costs](#-api-keys) explains the options.
 
-### Path 1 — One click, no terminal
+### The terminal path is the only one that installs Mashaer
 
-1. Install or update [Pinokio](https://desktop.pinokio.co/) to **8.2 or later**.
-2. Open [God's Eye View in Pinokio](https://pinokio.co/apps/github-com-bilawalsidhu-gods-eye-view) (the upstream listing).
-3. Click **Install**, then **Start**.
+> **There is no Pinokio listing for Mashaer.** The
+> [Pinokio entry](https://pinokio.co/apps/github-com-bilawalsidhu-gods-eye-view)
+> this README used to offer as "Path 1 — one click, no terminal" installs
+> **God's Eye View**, the upstream project — not this fork, and not the
+> Makkah, Madinah and pilgrimage-site presets that are the reason Mashaer
+> exists. Anyone following those steps ended up with a different application
+> than the one they were reading about. Use the terminal path below.
+>
+> The upstream launcher is still the right choice if what you actually want is
+> God's Eye View itself; it needs [Pinokio](https://desktop.pinokio.co/) 8.2 or
+> later, and the
+> [Pinokio maintainer's notes](https://pinokio.co/posts/01m1m4p9xxm3qw7dnnpj2wr93g)
+> cover the installer fix.
 
-Available on **Windows, macOS, and Linux**. The Pinokio maintainer reports
-cross-platform testing of the fixed installer. The launcher installs the
-locked dependencies, finds a free local port, and opens the app.
-
-**Tried before and installation failed?** Update Pinokio and try again.
-Version 8.2 fixes the launcher installation issue;
-[details from the Pinokio maintainer](https://pinokio.co/posts/01m1m4p9xxm3qw7dnnpj2wr93g).
-
-### Path 2 — Terminal / coding agent
+### Terminal / coding agent
 
 Use **Node.js 24.x (24.14.0 or later) or 26.x**. The setup doctor warns about
 Node 25, which is end-of-life.
 
 ```bash
-git clone https://github.com/bilawalsidhu/gods-eye-view.git
-cd gods-eye-view
+git clone https://github.com/mmaleem1/mashaer.git
+cd mashaer
 npm ci
 npm run doctor
 npm run dev

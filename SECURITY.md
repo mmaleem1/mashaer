@@ -6,8 +6,15 @@ Mashaer is a local-first client for **public** data. It is built for exploration
 
 Please report security issues **privately** — do not open a public issue for anything exploitable.
 
-- Use GitHub's [private vulnerability reporting](https://github.com/bilawalsidhu/gods-eye-view/security/advisories/new) (Security tab → "Report a vulnerability"), or
+- Use GitHub's [private vulnerability reporting](https://github.com/mmaleem1/mashaer/security/advisories/new) (Security tab → "Report a vulnerability"), or
 - Reach the maintainer directly via the contact on the GitHub profile.
+
+This address is for **Mashaer**. It used to point at the upstream project's
+advisory page, which meant a vulnerability found in this fork was reported to a
+repository whose maintainers cannot fix it. If the issue is in code Mashaer
+inherited unchanged from [God's Eye View](https://github.com/bilawalsidhu/gods-eye-view),
+it belongs upstream as well — report it there too, so the fix reaches everyone
+downstream and not just this fork.
 
 Include repro steps and impact. We'll acknowledge, investigate, and credit you (if you'd like) once a fix ships.
 

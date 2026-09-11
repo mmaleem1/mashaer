@@ -7,8 +7,8 @@ Thanks for being here. Mashaer is an open foundation for live spatial intelligen
 Use Node.js 24.14.x or 26.x (also enforced by `package.json`).
 
 ```bash
-git clone https://github.com/bilawalsidhu/gods-eye-view.git
-cd gods-eye-view
+git clone https://github.com/mmaleem1/mashaer.git
+cd mashaer
 nvm install 24.14.0
 nvm use 24.14.0
 npm install
@@ -61,10 +61,15 @@ The highest-leverage places to jump in:
 
 ## Maintainers
 
-God's Eye View, the upstream project, is maintained by [Bilawal Sidhu](https://github.com/bilawalsidhu)
-and [Sameh Khamis](https://github.com/samehkhamis) at
-[Halfpixel](https://halfpixel.ai). Either maintainer can review and merge
-contributions.
+**Mashaer is maintained by [mmaleem1](https://github.com/mmaleem1)**, who reviews
+and merges contributions here.
+
+God's Eye View, the upstream project this is forked from, is a separate project
+maintained by [Bilawal Sidhu](https://github.com/bilawalsidhu) and
+[Sameh Khamis](https://github.com/samehkhamis) at [Halfpixel](https://halfpixel.ai).
+**They do not maintain this fork and cannot merge anything here.** If your change
+is to code Mashaer inherited unchanged rather than to the Makkah/Madinah work,
+it will help far more people upstream — send it there.
 
 ## Ground rules
 

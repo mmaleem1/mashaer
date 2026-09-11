@@ -1585,9 +1585,24 @@ Historical planning documents may not match runtime behavior.
 
 ## Current Baseline
 
-- Repository metadata and public URLs use the `bilawalsidhu/gods-eye-view`
-  project identity. Runtime behavior is defined by this document and the current
-  source tree rather than historical branch notes.
+- Repository metadata and public URLs use the `mmaleem1/mashaer` identity. The
+  line here previously said `bilawalsidhu/gods-eye-view`; that was true of the
+  fork at the moment it was taken and stopped being true when the repository
+  was renamed. Corrected 2026-09-11 along with the clone URLs, CODEOWNERS, the
+  security-report address and the outbound API `User-Agent`/`Referer` headers,
+  all of which still named upstream. Upstream authorship is credited in LICENSE
+  and README and is unaffected.
+- Runtime behavior is defined by this document and the current source tree
+  rather than historical branch notes.
+
+### Retired from the interface, 2026-09-11
+
+CCTV, Context and — nested inside Context — Radio are **not reachable in the
+UI**. They are upstream surveillance features with no role in a Makkah/Madinah
+client. Sections of this document that describe their behavior remain accurate
+about the CODE, which is untouched: the retirement is one dated block in
+`style.css` and deleting it restores all three in place. Read those sections as
+describing capability, not something a visitor can currently open.
 
 ## Runtime Stack
 

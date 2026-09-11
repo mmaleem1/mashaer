@@ -5,6 +5,52 @@ of current runtime behavior, see [`docs/CURRENT-STATE.md`](docs/CURRENT-STATE.md
 
 ## [Unreleased]
 
+### Fork provenance — corrected 2026-09-11
+
+- `CODEOWNERS` listed upstream's maintainers, so every pull request opened on
+  this fork auto-requested review from two people who do not maintain it.
+- `SECURITY.md` routed private vulnerability reports to upstream's advisory
+  page — a security issue in this fork went to a repository that cannot fix it.
+- The README and `CONTRIBUTING.md` Quick Start told readers to
+  `git clone bilawalsidhu/gods-eye-view`, so anyone following the setup
+  installed the upstream application instead of Mashaer.
+- The README's "Path 1 — one click, no terminal" pointed at a Pinokio listing
+  that installs God's Eye View. There is no Pinokio listing for Mashaer; the
+  terminal path is now stated as the only one that installs this fork.
+- The README presented upstream's accolades (#1 on GitHub Trending, Product
+  Hunt, press quotes) as though they were this project's. They are now clearly
+  marked as belonging to God's Eye View.
+- `CONTRIBUTING.md` said either upstream maintainer could review and merge
+  contributions here. They cannot.
+- Outbound requests to CelesTrak and Nominatim identified this application as
+  upstream's repository in their `User-Agent` and `Referer` headers, sending
+  our traffic — and any rate limit or block earned by it — out under someone
+  else's name.
+- `package-lock.json` still declared the package as `gods-eye-view` while
+  `package.json` declared `mashaer`.
+
+### Changed
+
+- The interface is cut to six controls in a symmetrical 3 + 3 layout. CCTV,
+  Context and, nested inside Context, Radio are retired from the UI. The code,
+  its tests and its markup are untouched; a single dated block in `style.css`
+  is the whole retirement.
+- The required Google/Cesium attribution moves into the bottom-left corner and
+  the command dock is raised to clear it. Its keep-out guard was rewritten for
+  the new geometry and verified by breaking it.
+- Camera preset names no longer use compass directions: Ajyad & Aziziyah,
+  Al Awali & Al Naseem, Al Zahir & Khalidiyah, Al Hujun & Shara'i. Preset ids
+  are unchanged, so saved links and voice commands keep working.
+- "ACTIVE STYLE / NORMAL" and the HUD's large NORMAL label are hidden while no
+  visual filter is applied. Both return, naming the filter, when one is chosen.
+
+### Added
+
+- **Light theme**, with dark remaining the default. It is derived from
+  `style.css` by `npm run build:light-theme` rather than hand-written, and
+  `npm run check:light-theme` fails if it drifts. With no theme selected, none
+  of its rules can match, so the dark theme is unchanged.
+
 ### Fixed
 
 - Mapped-site outages show their scheduled retry countdown and distinguish

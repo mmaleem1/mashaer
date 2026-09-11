@@ -1583,8 +1583,11 @@ function celestrakProxy() {
     const res = await fetch(url.toString(), {
       signal: AbortSignal.timeout(20000),
       // CelesTrak 403s bulk groups (e.g. `active`) unless the request carries a
-      // descriptive User-Agent with a contact point.
-      headers: { 'User-Agent': 'mashaer-celestrak-proxy/1.0 (+https://github.com/bilawalsidhu/gods-eye-view)' },
+      // descriptive User-Agent with a contact point. The contact point must be
+      // OURS: it was still upstream's repository, so CelesTrak's logs — and any
+      // rate-limit or block they applied to this traffic — named a project that
+      // did not send it. Corrected 2026-09-11.
+      headers: { 'User-Agent': 'mashaer-celestrak-proxy/1.0 (+https://github.com/mmaleem1/mashaer)' },
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const body = await res.text();
@@ -7172,9 +7175,13 @@ function fetchRegionalPlace(point) {
       'accept-language': 'en',
     });
     const payload = await fetchRegionalJson(`https://nominatim.openstreetmap.org/reverse?${params}`, {
+      // Nominatim's usage policy requires an identifying User-Agent with a
+      // contact point so they can reach whoever is generating the load. Both
+      // this and the Referer named upstream's repository, which sent our
+      // traffic out under someone else's name. Corrected 2026-09-11.
       headers: {
-        'User-Agent': 'Mashaer/0.1 (+https://github.com/bilawalsidhu/gods-eye-view)',
-        Referer: 'https://github.com/bilawalsidhu/gods-eye-view',
+        'User-Agent': 'Mashaer/0.1 (+https://github.com/mmaleem1/mashaer)',
+        Referer: 'https://github.com/mmaleem1/mashaer',
       },
     });
     return normalizeRegionalPlace(payload);

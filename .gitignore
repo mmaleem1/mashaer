@@ -7,6 +7,16 @@ qa-shots/
 output/
 .mashaer-logs/
 .mashaer-cache/
+# Pre-rebrand paths. Nothing in the tree writes these any more, but the voice
+# debug log holds transcribed conversation, and the rename left the OLD paths
+# unguarded — a long-running pre-rename server or an older checkout will still
+# fill them, and an unignored directory of conversation logs is one `git add -A`
+# away from being published. Observed for real on 2026-09-11: a preview server
+# started before the rename kept writing .gev-logs/ while the source said
+# .mashaer-logs/, and the directory showed up untracked.
+.gev-logs/
+.gev-cache/
+.godsEyeView-logs/
 .DS_Store
 .gstack/
 3d-models/

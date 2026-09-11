@@ -1,1 +1,6 @@
-* @bilawalsidhu @samehkhamis
+# Owner of THIS fork. Upstream's maintainers (@bilawalsidhu, @samehkhamis) were
+# listed here by inheritance and were being auto-requested for review on every
+# pull request opened against mmaleem1/mashaer — a repository they do not
+# maintain. Their authorship is credited in LICENSE and README; review duty on
+# this fork is not theirs. Corrected 2026-09-11.
+* @mmaleem1
