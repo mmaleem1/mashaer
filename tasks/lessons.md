@@ -261,3 +261,101 @@ reading the markup undercounts the panels and only the runtime DOM is right.
 
 The number happened to survive the mistake. It did not have to. Count against
 the live DOM, not the file, whenever JavaScript moves things.
+
+## §24 I relapsed on the piped-exit-status trap, in the same session I quoted it
+
+RULE 18 names it, `tasks/lessons.md` restates it, and I still wrote:
+
+```bash
+npm ci --silent 2>&1 | tail -3 && echo "npm ci OK"
+```
+
+`&&` read `tail`'s status, not npm's. `npm ci` had failed in a postinstall
+hook, leaving `node_modules` half-installed — and I printed "npm ci OK" and
+moved on. The next command reported **96 test failures**, and for a moment I
+was looking for the bug in a lock file I had just regenerated.
+
+Knowing the rule is not the same as having the habit. The habit is:
+
+```bash
+set -o pipefail; cmd 2>&1 | tail -5; echo "exit=${PIPESTATUS[0]}"
+# or, when the output does not matter:
+cmd >/dev/null 2>&1; echo "exit=$?"
+```
+
+Second-order lesson, and the more useful one: **when a change produces a wildly
+disproportionate failure, suspect the environment before the change.** A
+two-line edit to a `name` field cannot break 96 tests. The real cause was a
+corrupt `~/.cache/puppeteer` directory — the browser folder present, the
+executable missing — which aborted `npm ci` in puppeteer's postinstall. GitHub
+CI had passed the same commit minutes earlier on a clean runner. Green CI and a
+broken local tree are perfectly compatible, and each one alone tells you
+nothing about the other.
+
+## §25 A fork inherits an IDENTITY, not just code — and the rename does not touch it
+
+The rebrand renamed every internal identifier, every CSS prefix and every
+storage namespace. Nine things still pointed at upstream afterwards, because
+none of them is *code*:
+
+- `CODEOWNERS` — every PR here auto-requested review from two people who do not
+  maintain this fork.
+- `SECURITY.md` — private vulnerability reports went to upstream's advisory page.
+- README and CONTRIBUTING clone URLs — following the setup installed a
+  DIFFERENT APPLICATION than the one being read about.
+- A "one click, no terminal" install path pointing at a Pinokio listing for the
+  upstream app. There is no listing for this fork, so that path could not
+  possibly produce it.
+- Outbound `User-Agent` and `Referer` to CelesTrak and Nominatim. Our traffic
+  went out under upstream's name, and any rate limit or block it earned would
+  have landed on them. Both providers require a contact point exactly so they
+  can reach whoever is generating the load — giving them the wrong one is worse
+  than giving them none.
+- Upstream's accolades (#1 on GitHub Trending, Product Hunt, a press quote)
+  presented as this project's, which had existed for one day and had 0 stars.
+- `package-lock.json` still declaring the old package name.
+
+The pattern: grep for the old NAME and you find the code. The identity hides in
+the places that name a PERSON, a REPOSITORY or a CONTACT — owners files,
+security policy, clone commands, install listings, and any header that
+introduces you to a third party. Sweep for those specifically.
+
+The line between the two is not "does it mention upstream". LICENSE, the fork
+notice and the attribution block must mention upstream — that is the MIT
+obligation. The test is: **is this sentence crediting them, or is it standing in
+for us?** Credit stays. Standing-in gets corrected.
+
+## §26 Retiring a feature from the UI silently makes the documentation lie
+
+CCTV, Context and Radio went behind one CSS block. The code, the tests and the
+markup were all still correct, so nothing failed — and README and
+`docs/CURRENT-STATE.md` went on telling readers to "hit NEAREST in the CCTV
+panel" and "turn on the Radio layer", steps that cannot be performed.
+
+A retirement has a documentation half. And here the right fix was NOT to delete
+those sections: they accurately describe code that still exists and comes back
+by deleting one block. What was missing was a single statement, up front, that
+the panels are not on screen — so the descriptions read as capability rather
+than as instructions.
+
+Same session, same shape as §23: the change was correct, the thing describing
+the change was not.
+
+## §27 A rename leaves the OLD path unguarded in .gitignore
+
+`.gev-logs/` became `.mashaer-logs/`, and `.gitignore` was updated to the new
+name — only the new name. Then an untracked `.gev-logs/` appeared, holding the
+voice debug log, which contains TRANSCRIBED CONVERSATION, in a repository that
+is public.
+
+The cause was not a code bug: nothing in the tree writes that path any more
+(grepped the whole tree, and a freshly booted server does not recreate it). It
+was a long-running preview process holding pre-rename config in memory. But the
+cause hardly matters — an old checkout, a stale process or a colleague who has
+not pulled produces the same untracked directory, and it is one `git add -A`
+from being published.
+
+So when a path that holds anything sensitive is renamed, **keep ignoring the old
+one**. An obsolete ignore rule costs nothing; a missing one costs a disclosure.
+Verified with `git check-ignore -v`, which names the rule and line that matched
+rather than leaving you to assume.

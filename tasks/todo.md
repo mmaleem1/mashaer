@@ -1,12 +1,21 @@
 # Mashaer — running state
 
-Branch `mashaer-rebrand`, last commit `9a753c8`. Everything below is **uncommitted**
-working-tree change — 31 files. Suite: **2745 tests, 2744 pass, 0 fail, 1 skip** (the
-skip is a Windows-only DACL test, skipped on macOS — pre-existing). Production build
-clean. `npm run check:makkah-presets` and `npm run check:light-theme` both report
-their generated files current.
+**Everything below is COMMITTED, merged to `main`, and pushed** to
+`github.com/mmaleem1/mashaer` — `303e4c4` (the UI/theme batch) and `f24e7e7`
+(fork provenance). CI green on both. `mashaer-rebrand` and `main` point at the
+same commit.
 
-## Done this session (batch, not yet committed)
+Suite: **2745 tests, 2744 pass, 0 fail, 1 skip** (the skip is a Windows-only DACL
+test, skipped on macOS — pre-existing). Production build clean.
+`npm run check:makkah-presets` and `npm run check:light-theme` both report their
+generated files current.
+
+The repo is a PUBLIC fork of `bilawalsidhu/gods-eye-view` and stays public by
+owner decision (2026-09-11): a fork cannot be made private without permanently
+leaving the fork network, and going private would start metering Actions
+minutes — with the Windows job billing at 2x.
+
+## Session 2 — the rebrand batch (commit `303e4c4`)
 
 - [x] **Opening shot is the Haram, not Austin.** `flyToHaram` in `src/camera.js`
       (+ a `makkah` entry in `CAMERA_PRESETS`); wired at `src/main.js`. The camera
@@ -183,6 +192,34 @@ colour-bearing rule, with lightness flipped in OKLab and alpha preserved.
       the location bar binds Q/W/E/R/T and a 6th stop is keyboard-unreachable
       (`src/ui.js`, `QWERTY_KEYS`). `holy-sites` is full and nothing there should
       be displaced for it.
+## Session 3b — fork provenance, 2026-09-11
+
+- [x] **Nine places still pointed at upstream as if it were this repo**, none of
+      them code, which is why the rebrand's identifier sweep missed every one:
+      CODEOWNERS (auto-requesting review from upstream's maintainers on every PR
+      here), SECURITY.md (vulnerability reports routed to a repo that cannot fix
+      them), the README and CONTRIBUTING clone URLs (following the setup
+      installed upstream's application), the README's "one click, no terminal"
+      Pinokio path (that listing installs God's Eye View; none exists for
+      Mashaer), CONTRIBUTING's claim that upstream maintainers merge here,
+      upstream's accolades presented as this project's, package-lock.json's
+      package name, docs/CURRENT-STATE.md's metadata line, and — the worst of
+      them — the outbound User-Agent and Referer to CelesTrak and Nominatim,
+      which sent our traffic under upstream's name so any rate limit or block it
+      earned would have landed on them. See §25 of lessons.md.
+- [x] **Documentation caught up with the retirement.** README and
+      docs/CURRENT-STATE.md were still instructing readers to open the CCTV,
+      CONTEXT and RADIO panels. Both now state up front that the panels are not
+      on screen, while keeping the descriptions — they are accurate about the
+      code, which is untouched (§26).
+- [x] **CHANGELOG.md entry added**, which CONTRIBUTING requires of any change to
+      runtime behaviour and which the preceding commit omitted.
+- [x] **Pre-rebrand log paths gitignored.** An untracked `.gev-logs/` holding
+      transcribed voice conversation appeared in a PUBLIC repo — a stale
+      pre-rename server process, not a code bug, but one `git add -A` from being
+      published. `.gev-logs/`, `.gev-cache/` and `.godsEyeView-logs/` are now
+      ignored; verified with `git check-ignore -v` (§27).
+
 ## Open
 
 - [ ] **Re-cut `public/mic.svg` to `currentColor`** and consume it as a
@@ -211,8 +248,10 @@ colour-bearing rule, with lightness flipped in OKLab and alpha preserved.
 
 ## Also outstanding
 
-- [ ] **Merge `mashaer-rebrand` → `main`**, and **commit this batch** — nothing
-      here is committed yet.
+- [x] **Merged to `main` and pushed** (2026-09-11). `main` moved 7596522 →
+      303e4c4 → f24e7e7; CI green on both pushes. Branch pushes cost no Actions
+      minutes (CI fires only on PRs and pushes to `main`), and the repo is
+      public, so the minutes are free either way — see the header.
 - [ ] **API keys** (`GOOGLE_MAPS_API_KEY`, `CESIUM_ION_TOKEN`, `OPENAI_API_KEY`)
       are the owner's to add. NOTE: the keyless Esri stack DOES render and the
       camera DOES fly — see lessons.
