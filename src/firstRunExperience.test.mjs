@@ -668,11 +668,18 @@ test('the voice TOOL SCHEMA is byte-identical to main — the mission mapping is
   //   2. the Mashaer rebrand rewrote the product name inside tool
   //      DESCRIPTIONS, and renamed the array itself to
   //      MASHAER_REALTIME_TOOLS along with every GEV_* identifier.
-  // No tool was added or removed, and no tool's behaviour changed.
-  assert.equal(block.length, 31427, 'tool schema byte length drifted from the pinned release schema');
+  //
+  // Re-pinned a THIRD time 2026-09-11, for one deliberate edit to the same
+  // three enums and nothing else (`git diff vite.config.js` was three lines):
+  //   - 'mashair' RENAMED to 'holy-sites', because the old id was the app's own
+  //     name transliterated differently and read as a typo next to it;
+  //   - 'makkah-haram' and 'makkah-north' ADDED — two new generated presets.
+  // Still no tool added or removed, and no tool's behaviour changed. 31427 →
+  // 31532 bytes is +105, which is what those three lines cost.
+  assert.equal(block.length, 31532, 'tool schema byte length drifted from the pinned release schema');
   assert.equal(
     crypto.createHash('sha256').update(block).digest('hex'),
-    '40eea9e8b0ef07b87725a03a32af894753547752403a7533ad98f9e616b239a0',
+    'f30fd5c204eb618300372021fafe6e7d9481ff7fd0cf862e0b6439bf503d20a3',
     'the first-run missions must ride EXISTING tools: no schema edit, no cache bust',
   );
 

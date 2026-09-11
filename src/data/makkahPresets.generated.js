@@ -9,7 +9,7 @@
  * ground elevations are Open-Meteo samples. Camera range and pitch are derived
  * from each feature's real OSM extent — see the generator for the framing maths.
  *
- * Source digest: c61b00a2e197b11a
+ * Source digest: f3f9302848128918
  */
 
 /** @type {Record<string, object>} Presets in CITY_POIS shape. */
@@ -27,7 +27,7 @@ export const MAKKAH_PRESETS = Object.freeze({
     ],
   },
   "makkah-central": {
-    name: "Makkah Central",
+    name: "Ajyad & Aziziyah",
     groundElevation: 296,
     viewBounds: { southwest: { lat: 21.397, lng: 39.794 }, northeast: { lat: 21.456, lng: 39.876 } },
     pois: [
@@ -39,7 +39,7 @@ export const MAKKAH_PRESETS = Object.freeze({
     ],
   },
   "makkah-south": {
-    name: "Makkah South",
+    name: "Al Awali & Al Naseem",
     groundElevation: 252,
     viewBounds: { southwest: { lat: 21.32, lng: 39.793 }, northeast: { lat: 21.398, lng: 39.925 } },
     pois: [
@@ -51,7 +51,7 @@ export const MAKKAH_PRESETS = Object.freeze({
     ],
   },
   "makkah-west": {
-    name: "Makkah West",
+    name: "Al Zahir & Khalidiyah",
     groundElevation: 231,
     viewBounds: { southwest: { lat: 21.367, lng: 39.741 }, northeast: { lat: 21.569, lng: 39.822 } },
     pois: [
@@ -62,14 +62,38 @@ export const MAKKAH_PRESETS = Object.freeze({
       { name: "Al Nuwariyah", lat: 21.5495, lon: 39.7608, alt: 11710, pitch: -50, heading: 0, buildingHeight: 0 },
     ],
   },
-  "mashair": {
+  "makkah-haram": {
+    name: "Around the Haram",
+    groundElevation: 282,
+    viewBounds: { southwest: { lat: 21.385, lng: 39.783 }, northeast: { lat: 21.457, lng: 39.849 } },
+    pois: [
+      { name: "Jabal Omar", lat: 21.4232, lon: 39.8177, alt: 1110, pitch: -26, heading: 270, buildingHeight: 137 },
+      { name: "Masjid al-Jinn", lat: 21.4335, lon: 39.829, alt: 560, pitch: -26, heading: 270, buildingHeight: 33 },
+      { name: "Jannat al-Mu'alla", lat: 21.4369, lon: 39.829, alt: 1030, pitch: -26, heading: 270, buildingHeight: 48 },
+      { name: "Al Misfalah", lat: 21.405, lon: 39.8223, alt: 2160, pitch: -34, heading: 0, buildingHeight: 12 },
+      { name: "Al Hindawiyah", lat: 21.4154, lon: 39.8026, alt: 2600, pitch: -34, heading: 0, buildingHeight: 0 },
+    ],
+  },
+  "makkah-north": {
+    name: "Al Hujun & Shara'i",
+    groundElevation: 304,
+    viewBounds: { southwest: { lat: 21.417, lng: 39.795 }, northeast: { lat: 21.502, lng: 40.002 } },
+    pois: [
+      { name: "Al Hujun", lat: 21.4369, lon: 39.8149, alt: 1730, pitch: -34, heading: 0, buildingHeight: 0 },
+      { name: "Al Utaybiyah", lat: 21.4513, lon: 39.816, alt: 3640, pitch: -42, heading: 0, buildingHeight: 64 },
+      { name: "Rea Zakhir", lat: 21.464, lon: 39.836, alt: 2220, pitch: -34, heading: 0, buildingHeight: 25 },
+      { name: "Ar Rashidiyah", lat: 21.4815, lon: 39.982, alt: 4820, pitch: -42, heading: 0, buildingHeight: 87 },
+      { name: "Ash Shara'i", lat: 21.4645, lon: 39.9484, alt: 4160, pitch: -42, heading: 0, buildingHeight: 86 },
+    ],
+  },
+  "holy-sites": {
     name: "Holy Sites",
     groundElevation: 310,
     viewBounds: { southwest: { lat: 21.333, lng: 39.853 }, northeast: { lat: 21.441, lng: 40.004 } },
     pois: [
-      { name: "Mina", lat: 21.4154, lon: 39.8925, alt: 6180, pitch: -42, heading: 0, buildingHeight: 69 },
+      { name: "Mina", lat: 21.4154, lon: 39.8925, alt: 5830, pitch: -42, heading: 0, buildingHeight: 69 },
       { name: "Jamarat Bridge", lat: 21.4208, lon: 39.8732, alt: 1110, pitch: -26, heading: 180, buildingHeight: 76 },
-      { name: "Muzdalifah", lat: 21.3863, lon: 39.9151, alt: 6180, pitch: -42, heading: 0, buildingHeight: 9 },
+      { name: "Muzdalifah", lat: 21.3863, lon: 39.9151, alt: 5000, pitch: -42, heading: 0, buildingHeight: 9 },
       { name: "Mount Arafat", lat: 21.3548, lon: 39.9841, alt: 1250, pitch: -34, heading: 270, buildingHeight: 2 },
       { name: "Masjid Namirah", lat: 21.353, lon: 39.9663, alt: 690, pitch: -26, heading: 45, buildingHeight: 15 },
     ],
@@ -143,9 +167,9 @@ export const MAKKAH_SCENE_RECIPES = Object.freeze([
         "hold": 0.6
       },
       {
-        "lat": 21.37414,
+        "lat": 21.37648,
         "lon": 39.8925,
-        "alt": 4514,
+        "alt": 4280,
         "heading": 0,
         "pitch": -42,
         "roll": 0,
@@ -193,9 +217,9 @@ export const MAKKAH_SCENE_RECIPES = Object.freeze([
         "hold": 4
       },
       {
-        "lat": 21.34504,
+        "lat": 21.35292,
         "lon": 39.9151,
-        "alt": 4454,
+        "alt": 3665,
         "heading": 0,
         "pitch": -42,
         "roll": 0,

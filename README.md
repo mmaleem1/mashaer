@@ -472,11 +472,11 @@ Mashaer runs on **public data, clear sources, and local-first execution.** No se
 
 **The line.** This project models **events, assets, infrastructure, and systems** — aircraft, vessels, satellites, fires, cameras, cities. It does not build features for named-person search, face recognition, or tracking individuals, and pull requests that cross that line won't be merged. People are not a query type here.
 
-**Come build it.** This is the canonical live 3D client from the project that kicked off the recent wave of spatial-intelligence tools — and it's a canvas: the layers here are the signals one person could find and fuse. Add a city pack, a data source, a style, a voice tool. It's the window through which you see the world; bring that window to others.
+**Come build it.** This is a canvas: the layers here are the signals one person could find and fuse. Add a city pack, a data source, a style, a voice tool. It's the window through which you see the world; bring that window to others.
 
 **Status:** An evolving open-source client for exploration and learning — a fast, hackable foundation, not a hardened production service. Released under the **[MIT License](LICENSE)**. Bundled and live datasets carry their own terms — see **[DATA_SOURCES.md](DATA_SOURCES.md)**. Security model: **[SECURITY.md](SECURITY.md)**. Want to contribute? **[CONTRIBUTING.md](CONTRIBUTING.md)**.
 
-**Maintainers:** [Bilawal Sidhu](https://github.com/bilawalsidhu) and [Sameh Khamis](https://github.com/samehkhamis) at [Halfpixel](https://halfpixel.ai).
+**Upstream:** Mashaer is a fork of **God's Eye View**, created and maintained by [Bilawal Sidhu](https://github.com/bilawalsidhu) and [Sameh Khamis](https://github.com/samehkhamis) at [Halfpixel](https://halfpixel.ai), and used here under the [MIT License](LICENSE). They do not maintain this fork.
 
 <sub>Media note: the capture GIFs on this page show Google Photorealistic 3D Tiles and live data layers, used promotionally with in-frame attribution; they aren't licensed for standalone reuse. See [media provenance and permissions](docs/media/README.md); full source terms in [DATA_SOURCES.md](DATA_SOURCES.md).</sub>
 
@@ -491,15 +491,25 @@ Mashaer runs on **public data, clear sources, and local-first execution.** No se
 
 ## 🧭 What's Next
 
-First — thank you. To everyone who watched the God-view demos and went off to build their own, and to everyone who kept asking for the code: I'm grateful. And when I polled whether this should go open source, you weren't subtle about it:
+Mashaer's own direction is narrow on purpose: more of the Haramain, framed properly. Camera presets and self-flying tours are **generated, not hand-typed** — add a name to [`scripts/makkah-places.json`](scripts/makkah-places.json), run `npm run build:makkah-presets`, and the geocoding, elevation sampling and auto-framing are done for you. Districts, ziyarah sites and Hajj-route beats are all one line each. Voice control answers to English, Arabic and Urdu.
 
-<img src="docs/media/open-source-survey.png" alt="Community survey on open-sourcing Mashaer" width="460">
+Everything the upstream project does — flights, vessels, satellites, fires, cameras — still works here and is still worth building on.
 
-So here it is. Step inside the spy-thriller cockpit — except the data is real — and let's turn this into our shared sandbox for making sense of the world, and have fun doing it. This repo is the baseline, it stays open, and the whole point is for you to break things and bolt on layers we haven't thought of yet.
+### From the upstream project
 
-One heads-up from the inside: build in this space for a week and you learn that **the present is the cheap part**. The moment you try to go back in time — tiling, serving, and scrubbing *what happened* and *what changed* at any real resolution — the data gets expensive and the compute gets brutal. That's the long game.
+Mashaer is a fork. The section below is **Bilawal Sidhu's**, written for God's Eye View, and is kept here because it is the origin of this codebase — it is his voice and his roadmap, not Mashaer's:
 
-**Update — a hosted version is coming.** We originally planned to keep this repository as the open-source client and build a separate professional product. Then the launch happened, and the loudest request wasn't another feature — it was *"just give me a link."* So we're building an official hosted God's Eye View at [Halfpixel](https://halfpixel.ai): no installation, just open it in your browser. The hosted version is the easiest way into this open-source project. More soon.
+> First — thank you. To everyone who watched the God-view demos and went off to build their own, and to everyone who kept asking for the code: I'm grateful. And when I polled whether this should go open source, you weren't subtle about it:
+
+<img src="docs/media/open-source-survey.png" alt="Community survey on open-sourcing God's Eye View" width="460">
+
+> So here it is. Step inside the spy-thriller cockpit — except the data is real — and let's turn this into our shared sandbox for making sense of the world, and have fun doing it. This repo is the baseline, it stays open, and the whole point is for you to break things and bolt on layers we haven't thought of yet.
+>
+> One heads-up from the inside: build in this space for a week and you learn that **the present is the cheap part**. The moment you try to go back in time — tiling, serving, and scrubbing *what happened* and *what changed* at any real resolution — the data gets expensive and the compute gets brutal. That's the long game.
+>
+> **Update — a hosted version is coming.** We originally planned to keep this repository as the open-source client and build a separate professional product. Then the launch happened, and the loudest request wasn't another feature — it was *"just give me a link."* So we're building an official hosted God's Eye View at [Halfpixel](https://halfpixel.ai): no installation, just open it in your browser. The hosted version is the easiest way into this open-source project. More soon.
+
+That hosted product is **theirs**, and is not connected to this fork.
 
 ---
 

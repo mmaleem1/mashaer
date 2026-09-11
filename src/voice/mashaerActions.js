@@ -193,14 +193,20 @@ const CITY_ALIASES = new Map([
   ['medina', 'madinah'],
   ['al madinah', 'madinah'],
   ['medinah', 'madinah'],
-  ['holy sites', 'mashair'],
-  ['the holy sites', 'mashair'],
+  ['holy sites', 'holy-sites'],
+  ['the holy sites', 'holy-sites'],
+  ['mashair', 'holy-sites'],
+  ['al mashair', 'holy-sites'],
+  ['around the haram', 'makkah-haram'],
+  ['the haram', 'makkah-haram'],
+  ['makkah north', 'makkah-north'],
+  ['north makkah', 'makkah-north'],
   // Arabic and Urdu, keyed on the FOLDED form (see foldPlaceName): `مكة` and
   // `مکہ` both fold to `مكه`, so each entry below serves both scripts at once.
   // Entries appear with and without the definite article, because a speaker
   // says "المدينة المنورة" but a transcriber often drops the "ال".
   // EVERY key here must already BE its own folded form, or it can never match —
-  // lookups fold first. `mashaerActions.test.mjs` asserts exactly that.
+  // lookups fold first. `placeNameFolding.test.mjs` asserts exactly that.
   ['مكه', 'makkah'],
   ['مكه المكرمه', 'makkah'],
   ['مكه مكرمه', 'makkah'],
@@ -211,9 +217,15 @@ const CITY_ALIASES = new Map([
   ['المدينه', 'madinah'],
   ['مدينه', 'madinah'],
   ['طيبه', 'madinah'],
-  ['المشاعر المقدسه', 'mashair'],
-  ['المشاعر', 'mashair'],
-  ['مشاعر', 'mashair'],
+  ['المشاعر المقدسه', 'holy-sites'],
+  ['المشاعر', 'holy-sites'],
+  ['مشاعر', 'holy-sites'],
+  ['شمال مكه', 'makkah-north'],
+  ['الحجون', 'makkah-north'],
+  ['الشرائع', 'makkah-north'],
+  ['حول الحرم', 'makkah-haram'],
+  ['الحرم', 'makkah-haram'],
+  ['جبل عمر', 'makkah-haram'],
 ]);
 
 // Basemap stack vocabulary. Switching requires an explicit stack name

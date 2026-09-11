@@ -20,7 +20,26 @@
     "                    with nothing to do with the real subject's size.",
     "  pitch, range    — hard overrides that switch OFF auto-framing for that",
     "                    place. Use sparingly; the extent-based default is better",
-    "                    than a guess for anything area-shaped."
+    "                    than a guess for anything area-shaped.",
+    "",
+    "WHERE THE NODE RADII COME FROM (verified 2026-09-11, OSM + Overpass):",
+    "  Nominatim hands every NODE a placeholder bbox of exactly +/-0.02 deg, so",
+    "  auto-framing on a node frames the placeholder, not the place. Checked with",
+    "  /lookup: Mina (N7758270150) and Muzdalifah (N4543956102) both come back",
+    "  with that synthetic box, so both now carry an explicit radius.",
+    "    Mina 2100 m   — half the E-W extent of the mapped valley, OSM way",
+    "                    1249259763 (area=yes, name:en=Mina), 3551 m N-S by",
+    "                    4228 m E-W centred 21.41526,39.88649. That way is NOT",
+    "                    in the Nominatim index, so it cannot be geocoded to",
+    "                    directly; it is used here only as the size evidence.",
+    "    Muzdalifah 1800 m — OSM maps NO area for Muzdalifah at all. Derived",
+    "                    instead from the three mapped Muzdalifah metro stations",
+    "                    (relations 7661455/7661456/7661457), whose farthest",
+    "                    point lies 1.62 km from the node.",
+    "  Checked and left alone: Al Aziziyah already resolves to relation 19262643",
+    "  (admin_level 10) with a real 2.66 x 2.85 km bbox, and Mount Arafat",
+    "  (Jabal ar-Rahmah) already carries a hand-set radius, so neither was ever",
+    "  framed from a placeholder."
   ],
   "regions": {
     "makkah": {
@@ -73,7 +92,7 @@
     },
     {
       "id": "makkah-central",
-      "name": "Makkah Central",
+      "name": "Ajyad & Aziziyah",
       "region": "makkah",
       "places": [
         {
@@ -100,7 +119,7 @@
     },
     {
       "id": "makkah-south",
-      "name": "Makkah South",
+      "name": "Al Awali & Al Naseem",
       "region": "makkah",
       "places": [
         {
@@ -127,7 +146,7 @@
     },
     {
       "id": "makkah-west",
-      "name": "Makkah West",
+      "name": "Al Zahir & Khalidiyah",
       "region": "makkah",
       "places": [
         {
@@ -153,13 +172,77 @@
       ]
     },
     {
-      "id": "mashair",
+      "id": "makkah-haram",
+      "name": "Around the Haram",
+      "region": "makkah",
+      "places": [
+        {
+          "label": "Jabal Omar",
+          "query": "جبل عمر",
+          "structureHeight": 120,
+          "heading": 270,
+          "radius": 400
+        },
+        {
+          "label": "Masjid al-Jinn",
+          "query": "مسجد الجن",
+          "structureHeight": 10,
+          "heading": 270,
+          "radius": 150
+        },
+        {
+          "label": "Jannat al-Mu'alla",
+          "query": "مقبرة المعلاة",
+          "heading": 270
+        },
+        {
+          "label": "Al Misfalah",
+          "query": "المسفلة"
+        },
+        {
+          "label": "Al Hindawiyah",
+          "query": "الهنداوية"
+        }
+      ]
+    },
+    {
+      "id": "makkah-north",
+      "name": "Al Hujun & Shara'i",
+      "region": "makkah",
+      "places": [
+        {
+          "label": "Al Hujun",
+          "query": "الحجون"
+        },
+        {
+          "label": "Al Utaybiyah",
+          "query": "العتيبية"
+        },
+        {
+          "label": "Rea Zakhir",
+          "query": "ريع ذاخر",
+          "radius": 800
+        },
+        {
+          "label": "Ar Rashidiyah",
+          "query": "الراشدية"
+        },
+        {
+          "label": "Ash Shara'i",
+          "query": "الشرائع",
+          "radius": 1500
+        }
+      ]
+    },
+    {
+      "id": "holy-sites",
       "name": "Holy Sites",
       "region": "makkah",
       "places": [
         {
           "label": "Mina",
-          "query": "منى مكة المكرمة"
+          "query": "منى مكة المكرمة",
+          "radius": 2100
         },
         {
           "label": "Jamarat Bridge",
@@ -170,7 +253,8 @@
         },
         {
           "label": "Muzdalifah",
-          "query": "مزدلفة"
+          "query": "مزدلفة",
+          "radius": 1800
         },
         {
           "label": "Mount Arafat",
@@ -241,28 +325,28 @@
           "orbit": true
         },
         {
-          "preset": "mashair",
+          "preset": "holy-sites",
           "poi": "Mina",
           "holdS": 5
         },
         {
-          "preset": "mashair",
+          "preset": "holy-sites",
           "poi": "Mount Arafat",
           "holdS": 6,
           "orbit": true
         },
         {
-          "preset": "mashair",
+          "preset": "holy-sites",
           "poi": "Masjid Namirah",
           "holdS": 4
         },
         {
-          "preset": "mashair",
+          "preset": "holy-sites",
           "poi": "Muzdalifah",
           "holdS": 5
         },
         {
-          "preset": "mashair",
+          "preset": "holy-sites",
           "poi": "Jamarat Bridge",
           "holdS": 5
         },

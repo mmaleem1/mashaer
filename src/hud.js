@@ -21,13 +21,36 @@ import { ellipsoidalToMslDisplayM, ensureGeoidReady, geoidHeight } from './data/
 import { getBasemapLabelContext } from './voice/mashaerActions.js';
 import { isHudSummaryUnconfigured } from './hudSummaryResponse.js';
 
-/** Color palettes keyed by shader mode; applied as CSS custom properties. */
+/**
+ * Color palettes keyed by shader mode; applied as CSS custom properties.
+ *
+ * These are set with `style.setProperty` on the element, so they are INLINE
+ * styles and no stylesheet can override them — which is why the light theme
+ * needs its own copy here rather than a rule in light-theme.generated.css.
+ * The light values are the dark ones put through the exact transform
+ * scripts/build-light-theme.mjs applies to every other colour in the app
+ * (OKLab lightness flipped about the same two anchors, hue and alpha kept),
+ * so a light HUD is the same design, not a second one.
+ */
 const HUD_COLORS = {
   surveillance: { main: 'rgba(51, 255, 51, 0.8)',  glow: 'rgba(51, 255, 51, 0.5)',  border: 'rgba(51, 255, 51, 0.2)' },
   thermal:      { main: 'rgba(255, 255, 255, 0.7)', glow: 'rgba(255, 255, 255, 0.4)', border: 'rgba(255, 255, 255, 0.15)' },
   retro:        { main: 'rgba(255, 170, 0, 0.8)',   glow: 'rgba(255, 170, 0, 0.5)',   border: 'rgba(255, 170, 0, 0.2)' },
   _default:     { main: 'rgba(0, 255, 255, 0.6)',   glow: 'rgba(0, 255, 255, 0.4)',   border: 'rgba(0, 255, 255, 0.15)' },
 };
+
+const HUD_COLORS_LIGHT = {
+  surveillance: { main: 'rgba(0, 56, 0, 0.8)',   glow: 'rgba(0, 56, 0, 0.5)',   border: 'rgba(0, 56, 0, 0.2)' },
+  thermal:      { main: 'rgba(7, 7, 7, 0.7)',    glow: 'rgba(7, 7, 7, 0.4)',    border: 'rgba(7, 7, 7, 0.15)' },
+  retro:        { main: 'rgba(98, 19, 0, 0.8)',  glow: 'rgba(98, 19, 0, 0.5)',  border: 'rgba(98, 19, 0, 0.2)' },
+  _default:     { main: 'rgba(0, 42, 49, 0.6)',  glow: 'rgba(0, 42, 49, 0.4)',  border: 'rgba(0, 42, 49, 0.15)' },
+};
+
+/** The palette for the theme currently stamped on `<html>`. Dark is the default. */
+export function hudPalette(styleName, theme) {
+  const table = theme === 'light' ? HUD_COLORS_LIGHT : HUD_COLORS;
+  return table[styleName] || table._default;
+}
 
 /** Shader modes that automatically show the HUD overlay. */
 const MILITARY_STYLES = new Set(['retro', 'surveillance', 'thermal']);
@@ -71,6 +94,12 @@ export class IntelHUD {
     this._visible = false;
     this._autoMode = true; // auto show/hide based on style
     this._currentStyle = 'normal';
+    // The HUD palette is written as INLINE custom properties, which no
+    // stylesheet can override — so unlike every other surface in the app it
+    // does not follow a theme change on its own. Re-running the style change
+    // repaints it from the light or dark table as appropriate.
+    this._themeChangeHandler = () => this.onStyleChange(this._currentStyle);
+    globalThis.addEventListener?.('mashaer:theme-changed', this._themeChangeHandler);
     this._el = null;
     this._variant = 'tactical';
     this._recBlinkState = true;
@@ -124,11 +153,27 @@ export class IntelHUD {
       }
     };
 
-    // Session-consistent pseudorandom identifiers (generated once at construction)
-    this._missionId = `KH11-${4000 + Math.floor(Math.random() * 200)}`;
-    this._sensorId = `OPS-${4100 + Math.floor(Math.random() * 100)}`;
-    this._orbitNum = 47000 + Math.floor(Math.random() * 1000);
-    this._passNum = 100 + Math.floor(Math.random() * 200);
+    // Session-consistent pseudorandom identifiers (generated once at construction).
+    //
+    // Re-themed 2026-09-11, at the owner's request. Upstream dressed this HUD
+    // as a reconnaissance-satellite downlink: session ids named after a real US
+    // imaging-satellite family, a simulated classification-and-handling banner
+    // across the top and both corners, fabricated orbit and pass numbers, and a
+    // blinking red "REC" light. None of it described anything the app does —
+    // the view is a public 3D basemap, nothing is classified, and nothing is
+    // being recorded — so on a Makkah and Madinah client it read as a claim
+    // rather than as set dressing.
+    //
+    // Every readout that is REAL is untouched (MGRS, lat/lon, altitude, sun
+    // elevation, off-nadir angle, GSD, UTC clock); only the invented ones
+    // changed. `VIEW`/`CAM` are session labels and say so.
+    this._missionId = `VIEW-${4000 + Math.floor(Math.random() * 200)}`;
+    this._sensorId = `CAM-${4100 + Math.floor(Math.random() * 100)}`;
+    // DISABLED 2026-09-11 with the re-theme above: orbit and pass numbers are
+    // fabricated orbital telemetry for a camera that is not in orbit. Kept for
+    // whoever wants the satellite styling back.
+    // this._orbitNum = 47000 + Math.floor(Math.random() * 1000);
+    // this._passNum = 100 + Math.floor(Math.random() * 200);
 
     this._buildDOM();
     this.viewer.camera.moveEnd.addEventListener(this._onCameraMoveEnd);
@@ -146,7 +191,7 @@ export class IntelHUD {
 
     this._el.innerHTML = `
       <div class="hud-top-bar">
-        <span class="hud-top-bar-left">TOP SECRET // SI-TK // NOFORN</span>
+        <span class="hud-top-bar-left">MASHAER // LIVE VIEW // OPEN DATA</span>
         <span class="hud-top-bar-center">${this._missionId}</span>
         <span class="hud-top-bar-right">PAGE 1/1</span>
       </div>
@@ -154,9 +199,9 @@ export class IntelHUD {
       <div class="hud-corner hud-top-left">
         <div class="hud-bracket">┌</div>
         <div class="hud-content">
-          <div class="hud-classification">TOP SECRET // SI-TK // NOFORN</div>
+          <div class="hud-classification">MASHAER // LIVE VIEW // OPEN DATA</div>
           <div class="hud-system">${this._missionId}  ${this._sensorId}</div>
-          <div class="hud-mode" id="hud-mode">NORMAL</div>
+          <div class="hud-mode" id="hud-mode" hidden>NORMAL</div>
           <div class="hud-summary-wrap">
             <div class="hud-summary-label">SUMMARY</div>
             <div class="hud-summary" id="hud-summary">Awaiting telemetry...</div>
@@ -166,8 +211,9 @@ export class IntelHUD {
 
       <div class="hud-corner hud-top-right">
         <div class="hud-content" style="text-align:right">
-          <div class="hud-rec"><span id="hud-rec-dot">●</span> REC  <span id="hud-timestamp">2026-01-01 00:00:00Z</span></div>
-          <div class="hud-orbital">ORB: ${this._orbitNum}  PASS: DESC-${this._passNum}</div>
+          <div class="hud-rec"><span id="hud-rec-dot">●</span> UTC  <span id="hud-timestamp">2026-01-01 00:00:00Z</span></div>
+          <!-- DISABLED 2026-09-11: invented orbital telemetry, see the
+               constructor. <div class="hud-orbital">ORB: … PASS: DESC-…</div> -->
         </div>
         <div class="hud-bracket">┐</div>
       </div>
@@ -195,9 +241,18 @@ export class IntelHUD {
       </div>
 
       <div class="hud-edge hud-right-edge">
+        <!-- DISABLED 2026-09-11 with the satellite re-theme: BAND / BITS / LVL
+             are fixed sensor-product labels for an imaging satellite (panchromatic
+             band, 11-bit quantisation, Level 1A processing). They describe no part
+             of this app, and unlike GSD or ONA below they are not computed from
+             anything — they were constants printed as telemetry.
         <div>BAND: PAN</div>
         <div>BITS: 11</div>
         <div>LVL: 1A</div>
+        -->
+        <div>3D TILES</div>
+        <div>WGS84</div>
+        <div>LIVE</div>
       </div>
 
       <div class="hud-bottom-bar">
@@ -567,7 +622,12 @@ export class IntelHUD {
     if (!m) return 'Awaiting telemetry...';
 
     const modeEl = document.getElementById('hud-mode');
+    // The style prefix names the visual filter in force. With no filter there
+    // is nothing to name, so the summary opens on the view band instead of
+    // announcing "NORMAL" (2026-09-11, owner). The element keeps its text
+    // either way — only the prefix and the corner label are conditional.
     const modeLabel = modeEl?.textContent || 'NORMAL';
+    const modePrefix = modeLabel === 'NORMAL' ? '' : `${modeLabel} `;
     const region = this._regionLabel(m.latDeg, m.lonDeg);
     const nearest = this._nearestKnownPoint(m.latDeg, m.lonDeg);
     const band = this._viewBand(m.altM);
@@ -588,7 +648,7 @@ export class IntelHUD {
     // NEAR the nearest catalogued POI at metro range; otherwise the lat/lon sector.
     const localityTag = composeLocalityTag(nearest, m.latDeg, m.lonDeg);
 
-    return `${modeLabel} ${band} ${localityTag} | ${region} | ALT ${altTag} | WINDOW ${winTag} | SUN ${m.sunEl.toFixed(0)}° | ONA ${m.ona.toFixed(0)}° | ${localTag}`;
+    return `${modePrefix}${band} ${localityTag} | ${region} | ALT ${altTag} | WINDOW ${winTag} | SUN ${m.sunEl.toFixed(0)}° | ONA ${m.ona.toFixed(0)}° | ${localTag}`;
   }
 
   /**
@@ -734,9 +794,13 @@ export class IntelHUD {
     if (modeEl) {
       const modeNames = { surveillance: 'NVG', thermal: 'FLIR', retro: 'CRT' };
       modeEl.textContent = modeNames[styleName] || styleName.toUpperCase();
+      // Hidden while unfiltered (2026-09-11, owner): a large "NORMAL" over the
+      // globe states the absence of an effect. The text is still written above
+      // so `_composeSummary` keeps reading the real mode from one place.
+      modeEl.hidden = styleName === 'normal';
     }
     // Update color scheme
-    const colors = HUD_COLORS[styleName] || HUD_COLORS._default;
+    const colors = hudPalette(styleName, document.documentElement?.dataset.theme);
     if (this._el) {
       this._el.style.setProperty('--hud-color', colors.main);
       this._el.style.setProperty('--hud-glow', colors.glow);

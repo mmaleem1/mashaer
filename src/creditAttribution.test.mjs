@@ -532,34 +532,108 @@ test('the full-width context rail clears the required credit at every modelled v
     }
   }
   assert.equal(anchors.length, 1, 'the rail has exactly one bottom anchor to reason about');
-  assert.equal(parseMediaCondition(anchors[0].rule.media[0]), 720, 'the rail only goes full-width below 720px');
+  assert.equal(parseMediaCondition(anchors[0].rule.media[0]), 720, 'the rail only changes anchor below 720px');
+
+  // As of 2026-09-11 the rail is TOP-anchored below 720px: its five collapsed
+  // panels moved into one chip grid at the top of the screen, so the rail no
+  // longer stretches across the lower half of a phone. `bottom: auto` is the
+  // declaration that says so.
+  //
+  // The obligation did not go away with the anchor. Google Maps Platform and
+  // Cesium both require the credit line to stay visible, so the proof just
+  // changes shape: instead of showing the rail's FLOOR sits above the credit,
+  // show that `top + max-height` — the lowest the rail can ever reach, because
+  // it is capped and cannot grow past the cap — sits above it, at every
+  // modelled viewport. Both numbers are read from the stylesheet, so raising
+  // either one into the credit band fails here.
+  assert.equal(anchors[0].decl.value, 'auto', 'the rail is top-anchored below 720px');
 
   const failures = [];
   for (const width of WIDTHS.filter((w) => w <= 720)) {
-    // `bottom` only governs the floor while the box is not height-capped:
-    // top + bottom + a resolved height is over-constrained and drops `bottom`.
-    assert.equal(
-      resolve(['#right-context-rail'], 'max-height', width, 'context rail').decl.value,
+    const topDecl = resolve(['#right-context-rail'], 'top', width, 'context rail').decl.value;
+    const capDecl = resolve(['#right-context-rail'], 'max-height', width, 'context rail').decl.value;
+    assert.notEqual(topDecl, 'auto', `at ${width}px the rail has neither a top nor a bottom anchor`);
+    assert.notEqual(
+      capDecl,
       'none',
-      `at ${width}px the rail is height-capped, so its bottom anchor no longer decides its floor`,
+      `at ${width}px the rail is top-anchored with NO height cap, so nothing bounds how far down it can grow`,
     );
+
     for (const height of HEIGHTS) {
-      const rail = resolve(['#right-context-rail'], 'bottom', width, 'context rail');
-      const clearance = toPx(rail.decl.value, height, 'rail bottom') - creditTopPx(width, height);
+      // Distances from the TOP of the viewport for this comparison; creditTopPx
+      // is measured from the bottom, so it is subtracted from the height.
+      const railFloor = toPx(topDecl, height, 'rail top') + toPx(capDecl, height, 'rail cap');
+      const creditTop = height - creditTopPx(width, height);
+      const clearance = creditTop - railFloor;
       if (clearance < MIN_CLEARANCE_PX) failures.push(`${width}x${height}: ${clearance.toFixed(1)}px`);
     }
   }
   assert.deepEqual(failures, [], `context rail re-enters the credit band at ${failures.join(', ')}`);
 });
 
-test('the dock anchor changes at 720px — the 2vh cancellation is band-limited', () => {
-  assert.equal(resolve(['#command-dock'], 'bottom', 800, 'dock').decl.value, '2vh');
-  assert.equal(resolve(['#command-dock'], 'bottom', 720, 'dock').decl.value, '8px');
-  assert.equal(
-    resolve(CREDIT_SELECTORS, 'bottom', 720, 'credit').decl.value,
-    'calc(2vh + 5rem)',
-    'the credit keeps its 2vh base below 720px — that asymmetry is the whole hazard',
-  );
+/*
+ * REWRITTEN 2026-09-11. The test that stood here proved a different building.
+ *
+ * Until now the credit sat ABOVE the dock at narrow widths
+ * (`calc(2vh + 5rem)`), and the hazard it guarded was an ASYMMETRY: across
+ * 721-900px both boxes carried a 2vh term that cancelled, but at 720px the
+ * dock re-anchored to a flat 8px while the credit kept its 2vh base, so the
+ * clearance stopped being height-independent and went negative on tall narrow
+ * viewports.
+ *
+ * The owner moved the credit into the bottom-left corner, so the dock now
+ * stands ABOVE the notice instead of under it, and both boxes are anchored in
+ * constants — there is no 2vh term left to cancel or fail to cancel. The old
+ * assertions describe geometry that no longer exists.
+ *
+ * The obligation is untouched: Google Maps Platform and Cesium require the
+ * credit visible whenever their content is displayed. So, per §18 of
+ * tasks/lessons.md, the proof is rewritten rather than removed — and it is
+ * rewritten to be STRICTER than what it replaces, because the dock is a
+ * permanent, opaque, backdrop-blurred surface rather than a transient tray:
+ * every modelled viewport in the band is checked, not just the anchors.
+ */
+test('the dock stands clear of the credit strip it now sits above', () => {
+  // Confined to <=900px on purpose. Above it the dock is centred and at most
+  // 1240px wide, so the bottom-LEFT corner is never underneath it (measured at
+  // 1440x900: dock x482-958, credit x24-363). It is only where the dock
+  // widens toward the full viewport that the two share the corner at all.
+  const failures = [];
+  for (const width of WIDTHS.filter((w) => w <= 900)) {
+    const dockBottom = resolve(['#command-dock'], 'bottom', width, 'dock').decl.value;
+    const creditBottom = resolve(CREDIT_SELECTORS, 'bottom', width, 'credit').decl.value;
+
+    for (const height of HEIGHTS) {
+      // Both measured from the BOTTOM of the viewport. The credit's own box is
+      // CREDIT_HEIGHT_PX tall and grows upward from its anchor; the dock's
+      // floor is simply its anchor.
+      const creditTop = toPx(creditBottom, height, 'credit bottom') + CREDIT_HEIGHT_PX;
+      const dockFloor = toPx(dockBottom, height, 'dock bottom');
+      const clearance = dockFloor - creditTop;
+      if (clearance < MIN_CLEARANCE_PX) {
+        failures.push(`${width}x${height}: ${clearance.toFixed(1)}px`);
+      }
+    }
+  }
+  assert.deepEqual(failures, [], `the dock covers the credit at ${failures.join(', ')}`);
+});
+
+test('nothing in the credit corner is anchored to viewport height', () => {
+  // The failure the old 2vh test caught was a clearance that LOOKED fine at the
+  // height someone happened to check and went negative at another. Keeping both
+  // anchors height-independent below 900px removes that whole class: one
+  // arithmetic check then holds at every height, which is why the test above is
+  // allowed to be a simple subtraction.
+  for (const width of WIDTHS.filter((w) => w <= 900)) {
+    for (const [selectors, label] of [[['#command-dock'], 'dock'], [CREDIT_SELECTORS, 'credit']]) {
+      const value = resolve(selectors, 'bottom', width, label).decl.value;
+      assert.ok(
+        !/\dv[hw]|\d%/.test(value),
+        `at ${width}px the ${label} anchor "${value}" depends on viewport size — `
+          + 'the clearance above is then only true at the heights it samples',
+      );
+    }
+  }
 });
 
 test('the minimal-HUD credit variant tracks the ordinary one', () => {

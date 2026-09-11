@@ -4240,7 +4240,12 @@ body.cockpit-mode #intel-hud .hud-right-edge { right: 22px; }
 
 .hud-summary-wrap {
   margin-top: 6px;
-  max-width: 420px;
+  /* 420px is the design width, but the HUD's top-left corner starts 39px in,
+     so a flat 420 ran 84px off the right edge of a 375px phone — the summary
+     line already ellipsises, it was just ellipsising past the screen. `min()`
+     keeps the design width wherever it fits and clamps to the viewport (less
+     the 39px inset and a matching right margin) wherever it does not. */
+  max-width: min(420px, calc(100vw - 78px));
 }
 
 .hud-summary-label {
@@ -4265,9 +4270,13 @@ body.cockpit-mode #intel-hud .hud-right-edge { right: 22px; }
   letter-spacing: 2px;
 }
 
+/* Re-themed 2026-09-11: this dot sat beside a "REC" label in red, which read
+   as a recording light on an app that records nothing. The label is now UTC and
+   the pulse marks a LIVE CLOCK, so it takes the accent colour — red here was
+   the single strongest part of the false claim. */
 #hud-rec-dot {
-  color: #ff3333;
-  text-shadow: 0 0 6px rgba(255, 51, 51, 0.8);
+  color: var(--accent);
+  text-shadow: 0 0 6px var(--accent-glow);
   font-size: 14px;
   vertical-align: middle;
 }
@@ -6908,30 +6917,51 @@ body.scene-playback-mode :is(#clear-selected-layers, #reset-globe-view) {
     width: auto;
   }
 
+  /* Sizes to CONTENT, capped at the half it used to claim outright.
+     `bottom: calc(50vh + 8px)` reserved the whole upper half whether the
+     panels inside were open or collapsed, so on a phone the globe was hidden
+     behind two collapsed headers and a lot of empty panel. The ceiling is the
+     same height that anchor produced — 100vh - 70px - (50vh + 8px) — so an
+     EXPANDED stack reaches exactly as far as before; only the collapsed case
+     changes, and it now takes the room it actually needs. */
   #left-panel-stack {
     top: 70px;
     right: 16px;
-    bottom: calc(50vh + 8px);
+    bottom: auto;
     left: 16px;
     width: auto;
-    max-height: none;
+    max-height: calc(50vh - 78px);
     overflow-y: auto;
   }
 
+  /* TOP-anchored, directly under the panel-stack row.
+     Was `top: calc(50vh + 8px)` with a bottom anchor, which pinned the rail
+     across the lower half of the screen: three collapsed chips floating in
+     the middle of the globe while two more sat at the top. Both rows now
+     live together at the top as one grid (see the chip-grid block at the end
+     of this file), leaving the whole rest of the viewport to the view.
+
+     `bottom: auto` is deliberate and is MODELLED: the required Google/Cesium
+     credit sits at the bottom of the screen, so a top-anchored rail with a
+     bounded height cannot reach it. `creditAttribution.test.mjs` proves that
+     arithmetic — 128px + 180px is clear of the credit at every modelled
+     viewport, the shortest being 500px tall — and still fails if either
+     number grows into the credit band. Change one, re-run that test. */
   #right-context-rail {
-    top: calc(50vh + 8px);
+    top: 128px;
+    bottom: auto;
+    max-height: 180px;
     right: 16px;
-    /* The rail goes edge-to-edge at this width, so its floor is what decides
-       whether the required Google/Cesium credit line survives. The credit's
-       top edge sits at calc(2vh + 5rem) plus its own 28px, so a flat 100px
-       floor cut into it at EVERY viewport height — the DISPLAY toggles were
-       drawn straight over the notice. Track the credit's own anchor instead
-       and the 12px of clear air holds regardless of height; the rail already
-       scrolls (overflow-y below), so it loses reach, not content. */
-    bottom: calc(2vh + 7.5rem);
+    /* Superseded 2026-09-11. This rule used to read `bottom: calc(2vh + 7.5rem)`
+       with `max-height: none`, tracking the credit's own anchor so the rail's
+       FLOOR could never cut into the required Google/Cesium notice. That was
+       the correct fix while the rail was bottom-anchored across the lower half
+       of the screen. It is now top-anchored above (128px, capped at 180px), so
+       its floor is 308px from the top and the credit is at the BOTTOM — the
+       hazard that anchor existed for cannot arise. The guarantee did not go
+       away, it moved: see the arithmetic in creditAttribution.test.mjs. */
     left: 16px;
     width: auto;
-    max-height: none;
     overflow-y: auto;
   }
 
@@ -7258,8 +7288,12 @@ body.recording-mode #cesium-credits {
 }
 
 @media (max-width: 720px) {
+  /* 2rem, not 8px, since 2026-09-11: the bottom-left corner now belongs to the
+     required Google/Cesium credit (see the max-width:900px block). Both
+     anchors are stated because this rule is EARLIER in the file than that one
+     and they carry equal specificity — §1 of tasks/lessons.md. */
   #command-dock {
-    bottom: 8px;
+    bottom: 3rem;
   }
 
   #command-dock .location-search-wrap {
@@ -7273,8 +7307,13 @@ body.recording-mode #cesium-credits {
     padding: 7px 9px;
   }
 
+  /* Content-sized, capped at the same half — see the note at the 720px rule.
+     This declaration is a REPEAT of the anchor set there; leaving it behind
+     silently restored the fixed half, because it is later in the file at equal
+     specificity. There were three of these. */
   #left-panel-stack {
-    bottom: calc(50vh + 8px);
+    bottom: auto;
+    max-height: calc(50vh - 78px);
   }
 }
 /* ── Compact accordion command dock ──────────── */
@@ -8114,11 +8153,35 @@ body:not(.ui-clean-view):not(.recording-mode):has(#intel-hud[data-variant='minim
 }
 
 @media (max-width: 900px) {
+  /* ── The credit moves INTO the bottom-left corner (2026-09-11, owner) ──
+     It used to float at `calc(2vh + 5rem)` — about 96px up on a 375x812
+     phone — which put the required notice in the middle of the lower-left
+     globe rather than in a corner, because the command dock owned the very
+     bottom of the screen (348px of 375px wide, anchored 8px up).
+
+     So the dock yields the corner: it re-anchors to 2rem just below, and the
+     credit takes the strip underneath it. The notice is MORE visible than
+     before, not less — it now has the corner to itself instead of sharing a
+     band with the dock's shadow. The obligation is unchanged; only the
+     geometry is, and `src/creditAttribution.test.mjs` re-proves it across the
+     viewport grid.
+
+     Superseded, kept per RULE 17:
+       bottom: calc(2vh + 5rem);   <- above the dock, pre-2026-09-11 */
   body:not(.ui-clean-view):not(.recording-mode) #cesium-credits,
   body:not(.ui-clean-view):not(.recording-mode):has(#intel-hud[data-variant='minimal'].active) #cesium-credits {
-    bottom: calc(2vh + 5rem);
+    bottom: 0.5rem;
     left: 0.75rem;
     max-width: calc(100vw - 1.5rem);
+  }
+
+  /* Clears the credit strip below: 0.5rem credit anchor + 16px line + 8px
+     gap. Set HERE as well as in the max-width:720px block because that block
+     sits EARLIER in the file at equal specificity — the trap in §1 of
+     tasks/lessons.md, which cost a session when one of three anchors was
+     fixed and the browser quietly kept using the last. */
+  #command-dock {
+    bottom: 3rem;
   }
 
   #command-dock .mashaer-voice-error-tray {
@@ -8139,8 +8202,13 @@ body:not(.ui-clean-view):not(.recording-mode):has(#intel-hud[data-variant='minim
     text-overflow: ellipsis;
   }
 
+  /* Content-sized, capped at the same half — see the note at the 720px rule.
+     This declaration is a REPEAT of the anchor set there; leaving it behind
+     silently restored the fixed half, because it is later in the file at equal
+     specificity. There were three of these. */
   #left-panel-stack {
-    bottom: calc(50vh + 8px);
+    bottom: auto;
+    max-height: calc(50vh - 78px);
   }
 }
 
@@ -9519,4 +9587,485 @@ body.scene-playback-mode #key-setup {
   color: rgba(255, 190, 170, 1);
   border-color: rgba(255, 170, 150, 0.65);
   outline: none;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   PHONE WIDTHS — top-row collision fix
+
+   Three separate elements are anchored at `top: 32px` and, on a 375 px
+   viewport, land on top of each other. Measured at 375 x 812:
+
+     #title-bar          x  36 → 268
+     #top-center-actions x 126 → 250   (inside the title bar)
+     #style-indicator    x 231 → 339   (over the actions)
+
+   plus the title's subtitle at y 79, under the left panel stack's y 70.
+
+   Nothing here reflows, because all three are position:fixed — they simply
+   overlap, and the buttons in the middle win the z-order while the wordmark
+   reads as corrupted text behind them. So on phones the wordmark and tagline
+   step aside (the logo alone still carries the brand, and it is the only part
+   of the title that is a control — it is the gaze target), and the style
+   readout drops to its own row.
+
+   This is a COLLISION FIX, not a mobile layout. The HUD is a desktop-first
+   design — a left panel stack, a right context rail and a bottom dock, all
+   sized for a wide viewport — and it still is after this block. See RULE 14
+   in the project notes for what a real phone layout would take.
+   ══════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 620px) {
+  /* Keep the logo, drop the wordmark: `MASH<span>AER</span>` is two spans, and
+     the first child is the logo, so target everything that is NOT the logo. */
+  #title-bar h1 > span:not(.title-logo) { display: none; }
+  #title-bar .subtitle { display: none; }
+
+  /* Stays on row 1, to the RIGHT of the action buttons — it was moved to a
+     second row at 78px, which then collided with the chip row at 70px. At
+     0.72em the readout is ~78px wide and ends well clear of the buttons,
+     which finish at x=250 on a 375px screen. */
+  #style-indicator {
+    font-size: 0.72em;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   PHONE / NARROW WIDTHS — command dock uses the width it already has.
+
+   The dock pinned itself to 276px of a 700px viewport, leaving 424px unused,
+   which is why "LOCATION" (84px of text) and "VISUAL PRESETS" (130px) could
+   not fit their 68px wings and painted over the voice control between them.
+   ══════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 720px) {
+  /* ── Command dock: use the width that is already there ──────────────
+     4.25rem wings could not hold their labels. 6.5rem can, and the whole
+     dock still measures 6.5+6.5+8.75 = 21.75rem (348px) — inside even a
+     375px phone. The labels wrap instead of overflowing, so "VISUAL
+     PRESETS" sets on two lines rather than escaping its box or being
+     abbreviated to "VIS…". The names stay: an icon-only dock was tried
+     and the owner reported the loss of the names as a regression. */
+  #command-dock {
+    --dock-side-compact: 6.5rem;
+  }
+
+  #command-dock #location-bar.collapsed .location-toolbar-label,
+  #command-dock #control-panel.collapsed .panel-title {
+    width: 100%;
+    max-width: 100%;
+    justify-content: center;
+    overflow: hidden;
+    white-space: normal;
+    line-height: 1.15;
+    text-align: center;
+  }
+
+  /* The '›' / '‹' chevrons are desktop hover affordances and only add width
+     to a label that is already wrapping. */
+  #command-dock #location-bar.collapsed .location-toolbar-label::after,
+  #command-dock #control-panel.collapsed .panel-title::after,
+  #command-dock #control-panel.collapsed .panel-title::before {
+    content: none;
+  }
+}
+
+/* The 620px block above narrows the wings to 3.25rem and clips the labels to
+   2.3rem with an ellipsis ("LOC…" / "VIS…"). Both are superseded: 6.5rem wings
+   fit a 375px screen, and a wrapped label beats an abbreviated one. */
+@media (max-width: 620px) {
+  #command-dock {
+    --dock-side-compact: 6.5rem;
+  }
+
+  #command-dock #location-bar.collapsed .location-toolbar-label,
+  #command-dock #control-panel.collapsed .panel-title {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: clip;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   PHONE / NARROW WIDTHS — the intel HUD keeps only its useful corner.
+
+   The HUD paints eight independent readouts against the four corners and
+   both edges of the viewport. That works at desktop width; at 375px they
+   run into each other and into the panel chips — the top-left banner and
+   the top-right UTC clock overprint, and the bottom-left MGRS/lat-lon sits
+   under the CONTEXT chip.
+
+   The top-LEFT corner is kept because it answers "what am I looking at":
+   the style mode and the plain-language summary line ("NORMAL STREET NEAR
+   KAABA / MASJID AL-HARAM"). The rest is dense telemetry that is not
+   legible at this size anyway, and all of it remains one breakpoint away.
+   ══════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 720px) {
+  #intel-hud .hud-top-bar,
+  #intel-hud .hud-edge,
+  #intel-hud .hud-corner.hud-top-right,
+  #intel-hud .hud-corner.hud-bottom-left,
+  #intel-hud .hud-corner.hud-bottom-right,
+  #intel-hud .hud-bracket,
+  #intel-hud .hud-classification,
+  #intel-hud .hud-system {
+    display: none;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   PHONE / NARROW WIDTHS — all five collapsed panels as ONE symmetrical grid
+   at the top of the screen.
+
+   Before: two panels sat as full-width bars at the top and three more sat
+   in a second full-width stack pinned across the middle of the globe, each
+   a different width, five rows deep. Scattered, and ~250px of a phone
+   screen spent on five collapsed headers.
+
+   Now both containers are 3-column grids anchored at the top — the stack at
+   70px, the rail directly beneath it at 128px — with `1fr` columns, so every
+   chip is EXACTLY the same width regardless of how long its label is, and
+   the two rows line up column for column:
+
+       [ DATA LAYERS ] [ SCENES  ] [           ]
+       [ DISPLAY     ] [ CCTV    ] [ CONTEXT   ]
+
+   Labels ellipsise rather than widen their cell — a grid that stays aligned
+   is worth more here than a few extra characters, and the full name is on
+   the panel itself once opened.
+
+   An OPEN panel spans all three columns: it needs the width, and it is the
+   thing the visitor just asked to see.
+   ══════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 720px) {
+  #left-panel-stack,
+  #right-context-rail {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-content: start;
+    gap: 8px;
+  }
+
+  /* Chips: uniform cells. IDs, because the stacked-layout rules earlier in
+     this file are `#left-panel-stack > #data-panel { width: 100% }` — two
+     IDs — and a class-only selector loses that contest silently. */
+  #left-panel-stack > #data-panel,
+  #left-panel-stack > #cctv-panel,
+  #left-panel-stack > #scene-panel,
+  #left-panel-stack > #global-context-panel,
+  #right-context-rail > #pp-toggles,
+  #right-context-rail > #cctv-panel,
+  #right-context-rail > #global-context-panel,
+  #left-panel-stack > #data-panel.collapsed,
+  #left-panel-stack > #cctv-panel.collapsed,
+  #left-panel-stack > #scene-panel.collapsed,
+  #left-panel-stack > #global-context-panel.collapsed,
+  #right-context-rail > #pp-toggles.collapsed,
+  #right-context-rail > #cctv-panel.collapsed,
+  #right-context-rail > #global-context-panel.collapsed {
+    grid-column: span 1;
+    width: auto;
+    min-width: 0;
+    margin-left: 0;
+  }
+
+  /* Open: full width of the grid. */
+  #left-panel-stack > #data-panel:not(.collapsed),
+  #left-panel-stack > #cctv-panel:not(.collapsed),
+  #left-panel-stack > #scene-panel:not(.collapsed),
+  #left-panel-stack > #global-context-panel:not(.collapsed),
+  #right-context-rail > #pp-toggles:not(.collapsed),
+  #right-context-rail > #cctv-panel:not(.collapsed),
+  #right-context-rail > #global-context-panel:not(.collapsed) {
+    grid-column: 1 / -1;
+    width: auto;
+  }
+
+  /* Headers fill their cell and clip rather than stretch it. */
+  #left-panel-stack .panel-header,
+  #right-context-rail .panel-header,
+  #right-context-rail .pp-header-row {
+    width: auto;
+    min-width: 0;
+    gap: 0.4rem;
+  }
+
+  /* Labels WRAP rather than ellipsise. A 109px cell minus the disclosure
+     button leaves ~60px, and at one line that clipped "DATA LAYERS" to
+     "DATA …" and "CONTEXT" to "CO…" — an abbreviation that identifies
+     nothing. Two short lines fit the same cell and stay readable, and it
+     matches how the dock wings below set "VISUAL PRESETS". */
+  /* The decorative rule between label and button. It is `flex: 1 1 0%`, so in
+     a 109px cell it competes with the label for the same pixels; the label is
+     `flex: 0 1 auto` and therefore loses. Measured: "SCENES" got 34px for a
+     40px word and "CONTEXT" got 12px for 38px. The divider is decoration. */
+  #left-panel-stack .panel-divider,
+  #right-context-rail .panel-divider {
+    display: none;
+  }
+
+  /* The radio shortcut rides in the CONTEXT header and takes 28px of a cell
+     that has ~65px for text. It is still there once the panel is open. */
+  #right-context-rail > #global-context-panel.collapsed .context-radio-dock {
+    display: none;
+  }
+
+  #left-panel-stack .panel-title,
+  #right-context-rail .panel-title,
+  #right-context-rail .pp-header-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 0.5rem;
+    letter-spacing: 0.04rem;
+    line-height: 1.2;
+    white-space: normal;
+    /* NOT `overflow-wrap: anywhere` — that breaks inside words and rendered
+       "CONTEXT" as "CO/NT/EX/T". Wrap at spaces only: "DATA LAYERS" sets on
+       two lines, and every single-word label fits one line at this size. */
+    overflow-wrap: normal;
+    word-break: keep-all;
+  }
+
+  /* The header's own padding and the rule/underline between label and button
+     were sized for a full-width bar; in a 109px cell they are what squeezed
+     the label. */
+  #left-panel-stack .panel-header,
+  #right-context-rail .panel-header,
+  #right-context-rail .pp-header-row {
+    padding-right: 0.35rem;
+    padding-left: 0.5rem;
+  }
+
+  #left-panel-stack .panel-header::after,
+  #right-context-rail .panel-header::after {
+    display: none;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   RETIRED 2026-09-11 — CCTV and CONTEXT panels (owner decision)
+
+   Both are upstream "God's Eye View" surveillance features with no role in a
+   Makkah/Madinah client: CCTV streams traffic-camera intersections, and
+   CONTEXT cycles the nearest aircraft, vessels and installations. Retiring
+   them takes the collapsed-panel chips from five to THREE (DATA LAYERS,
+   SCENES, DISPLAY), which pairs with the three command-dock wings (LOCATION,
+   MASHAER MIC, VISUAL PRESETS) for a symmetrical 3 + 3 layout.
+
+   RADIO GOES WITH CONTEXT. `#radio-panel` is nested INSIDE
+   `#global-context-panel` in index.html, so hiding the parent retires the
+   internet-radio companion too. That is a real capability leaving the UI and
+   it is recorded in tasks/todo.md.
+
+   RULE 17 — nothing is deleted. The markup, every line of JavaScript and all
+   of their tests stay exactly where they were; neither panel fetches anything
+   until it is enabled, so hidden costs nothing at runtime. THIS BLOCK IS THE
+   WHOLE RETIREMENT: delete it and both panels come back in place.
+
+   `!important` is deliberate. These two ids carry `display` from several
+   layout rules across four media blocks, and a retirement that a later
+   breakpoint can silently undo is the trap in §1 of tasks/lessons.md.
+   ══════════════════════════════════════════════════════════════════════ */
+
+#cctv-panel,
+#global-context-panel,
+/* CCTV's frame-loading chip lives OUTSIDE the panel, near the top-left HUD
+   (index.html:84). Found by enumerating what was actually painted on a 375px
+   screen after the panels went — it was still announcing "LOADING FRAMES 0/0"
+   for a feature the visitor can no longer reach. */
+#cctv-sync-chip {
+  display: none !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   PHONE — DISPLAY joins the chip row (2026-09-11)
+
+   `_syncDisplayPanelHome()` in src/ui.js re-parents `#pp-toggles` into
+   `#left-panel-stack` below 720px, so the three surviving chips form ONE
+   three-column row that mirrors the three-wing dock at the bottom:
+
+       [ DATA LAYERS ] [ SCENES ] [ DISPLAY ]        <- top
+       [ LOCATION ] [ MASHAER MIC ] [ VISUAL PRESETS ] <- bottom dock
+
+   These rules re-state for the left stack what `#right-context-rail`
+   declares for DISPLAY at lines ~4515-4550 — the rail's selectors stop
+   matching the moment the element changes parent, and without them the chip
+   fell back to its `--pp-expanded-width` base and broke the row.
+
+   `#right-context-rail` is deliberately NOT hidden: it simply has no visible
+   children left at this width, so it collapses to zero height on its own.
+   Hiding it would also hide it from `creditAttribution.test.mjs`, which reads
+   its `top` and `max-height` out of this stylesheet to prove the required
+   Google/Cesium notice can never be covered.
+   ══════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 720px) {
+  #left-panel-stack > #pp-toggles {
+    position: relative;
+    inset: auto;
+    flex: 0 0 auto;
+    /* After DATA LAYERS (1) and SCENES (4). `prepend` puts the element first in
+       the DOM — deliberately, so it is the first thing restored to the rail on
+       the way back to desktop — and `order` decides where it PAINTS. */
+    order: 5;
+    grid-column: span 1;
+    width: auto;
+    min-width: 0;
+    margin-left: 0;
+    pointer-events: auto;
+  }
+
+  #left-panel-stack > #pp-toggles:not(.collapsed) {
+    grid-column: 1 / -1;
+  }
+
+  /* A COLLAPSED chip must clip its own contents.
+     Measured: `#data-panel` renders a 50px box whose scrollHeight is 70 —
+     the toggle list inside is still laid out, just not visible — and that
+     20px propagated to the stack, which carries `overflow-y: auto` and so
+     grew a 15px scrollbar down the right of a row that has nothing to
+     scroll. Written with the IDs because the stacked-layout rules these sit
+     against carry two of them (see §15 of tasks/lessons.md). */
+  #left-panel-stack > #pp-toggles.collapsed,
+  #left-panel-stack > #data-panel.collapsed,
+  #left-panel-stack > #scene-panel.collapsed {
+    overflow: hidden;
+  }
+
+  /* Match the 50px chip height the other two collapsed headers set. */
+  #left-panel-stack > #pp-toggles.collapsed .pp-header-row {
+    box-sizing: border-box;
+    width: 100%;
+    height: 50px;
+    min-height: 50px;
+  }
+
+  /* The chip-grid block earlier in this file styles `.panel-header` and
+     `.panel-title` for both containers but reaches DISPLAY's header only
+     through `#right-context-rail .pp-header-row`. */
+  #left-panel-stack .pp-header-row {
+    width: auto;
+    min-width: 0;
+    gap: 0.4rem;
+    padding-right: 0.35rem;
+    padding-left: 0.5rem;
+  }
+
+  #left-panel-stack .pp-header-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 0.5rem;
+    letter-spacing: 0.04rem;
+    line-height: 1.2;
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: keep-all;
+  }
+
+  #left-panel-stack .pp-header-row .panel-divider {
+    display: none;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   THEME TOGGLE + light-theme hand-tuning (2026-09-11)
+
+   The light theme itself is GENERATED — light-theme.generated.css, built from
+   this file by scripts/build-light-theme.mjs. This block holds only the two
+   things the generator cannot produce:
+
+     1. The toggle's own chrome (it has no dark original to derive from).
+     2. Colours inside @keyframes. A keyframe selector takes no
+        `:root[data-theme]` prefix, so `detection-pulse` is the one animation
+        whose colours must be written twice, by hand, here.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Only the icon for the theme you would move TO is shown. Both live in the
+   markup so the swap costs no layout and no icon-font reflow. */
+#theme-toggle .theme-toggle-light,
+:root[data-theme='light'] #theme-toggle .theme-toggle-dark {
+  display: none;
+}
+
+:root[data-theme='light'] #theme-toggle .theme-toggle-light {
+  display: inline-block;
+}
+
+/* `detection-pulse` is the only animation in the file that paints a colour.
+   The generated layer reports it on every run and refuses to guess at it;
+   these rules are that report, answered.
+
+   Its one consumer is `#detection-toggle.panoptic, #detection-toggle.god`
+   (style.css:1448) — read from the stylesheet, not assumed, because a light
+   override aimed at a selector nothing uses is a silent no-op. The green
+   stays green (it is a STATE colour, and the button means the same thing in
+   both themes); only its lightness is flipped the way the generator would,
+   and the shadow alphas are scaled by the same 0.55. */
+@keyframes detection-pulse-light {
+  0%, 100% { box-shadow: 0 0 12px rgba(0, 74, 15, 0.0825); }
+  50% { box-shadow: 0 0 22px rgba(0, 74, 15, 0.1925); }
+}
+
+:root[data-theme='light'] #detection-toggle.panoptic,
+:root[data-theme='light'] #detection-toggle.god {
+  animation-name: detection-pulse-light;
+}
+
+/* The MASHAER MIC glyph is `<img src="/mic.svg">` (src/voice/mashaerRealtime.js)
+   and the SVG hardcodes `stroke="#36dcff"`, so neither a stylesheet rule nor
+   the generated light layer can recolour it — an `<img>` does not inherit
+   `currentColor`. A filter is the one lever CSS has over an img's pixels:
+   invert + hue-rotate turns a single-hue line glyph into its own dark
+   counterpart at the same hue, which is what the OKLab flip does to every
+   other colour. Approximate by construction, and the only such approximation
+   in the theme — noted in tasks/todo.md, where the exact fix (re-cut the SVG
+   to `currentColor` and consume it as a mask, like location.svg and pin.svg
+   already are) is recorded. */
+:root[data-theme='light'] .mashaer-mic-orbit img {
+  filter: invert(1) hue-rotate(180deg) brightness(0.7);
+}
+
+/* ── Light theme: legibility halos over the globe ─────────────────────────
+   These are the elements that float directly on the satellite imagery rather
+   than on a panel, and every one of them relied on a DARK halo to stay
+   readable: light text, dark shadow, works over any photograph.
+
+   The generated layer flips the text and keeps the shadow dark, which is
+   correct for a drop shadow and wrong for a halo — dark text with a dark
+   outline over bright imagery is the one combination that reads as neither.
+   So the halo inverts here, by hand, and the generator is left alone: it
+   cannot tell a halo from a shadow, and teaching it to guess would be worse
+   than naming the four places it matters.
+
+   #cesium-credits leads the list deliberately. It is the Google/Cesium notice
+   the Maps Platform and Cesium terms require to stay VISIBLE, and visible
+   means legible over whatever the camera is pointed at. Its colour is also
+   lifted from the flipped 0.55 to 0.78 for the same reason. */
+:root[data-theme='light'] #cesium-credits {
+  color: rgba(19, 20, 22, 0.82);
+  text-shadow:
+    0 0 3px rgba(255, 255, 255, 0.95),
+    0 1px 2px rgba(255, 255, 255, 0.9);
+}
+
+:root[data-theme='light'] #title-bar h1 {
+  text-shadow: 0 0 24px rgba(255, 255, 255, 0.85);
+}
+
+:root[data-theme='light'] #title-bar .subtitle,
+:root[data-theme='light'] #style-indicator .indicator-label,
+:root[data-theme='light'] #style-indicator .indicator-value {
+  color: rgba(19, 20, 22, 0.72);
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.95);
+}
+
+:root[data-theme='light'] #intel-hud {
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.92);
+}
+
+:root[data-theme='light'] #intel-hud .hud-content {
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.95);
 }

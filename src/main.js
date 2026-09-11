@@ -1,6 +1,6 @@
 import * as Cesium from 'cesium';
 import { StyleManager } from './ui.js';
-import { flyToAustin } from './camera.js';
+import { flyToHaram } from './camera.js';
 import { DataLayerManager } from './data/manager.js';
 import flightsLayer from './data/flights.js';
 import militaryFlightsLayer from './data/militaryFlights.js';
@@ -23,6 +23,8 @@ import { MapStackController } from './mapStackController.js';
 import { initAnnotations } from './annotations/index.js';
 import { initLogoGaze } from './logoGaze.js';
 import { migrateLegacyStorageKeys } from './storageMigration.js';
+import { registerServiceWorker } from './pwa.js';
+import { initTheme } from './theme.js';
 import { initCockpitCloudEffects } from './cockpitCloudEffects.js';
 import {
   installRenderGovernor,
@@ -43,6 +45,14 @@ import { loadPhotorealisticTileset } from './mapStartup.js';
 migrateLegacyStorageKeys();
 
 initLogoGaze();
+
+// The opening theme is already stamped on <html> by the inline script in
+// index.html, so this does not repaint anything — it re-reads the same choice
+// and wires the toggle. Dark is the default; see src/theme.js.
+initTheme();
+
+// Fire-and-forget: registration never blocks startup and never rejects outward.
+registerServiceWorker();
 
 /**
  * Extract a human-readable error message from any thrown value.
@@ -202,10 +212,10 @@ async function init() {
     const weatherEffects = null;
     const cockpitCloudEffects = initCockpitCloudEffects(viewer);
 
-    // If no share link state, do default fly-to Austin
+    // If no share link state, do the default fly-to: the Haram in Makkah.
     if (!styleManager.hasShareState) {
-      loaderStatus.textContent = 'Flying to Austin, TX...';
-      flyToAustin(viewer);
+      loaderStatus.textContent = 'Flying to Makkah...';
+      flyToHaram(viewer);
     } else {
       loaderStatus.textContent = 'Restoring shared view...';
     }
@@ -338,7 +348,13 @@ async function init() {
   } catch (error) {
     console.error("Mashaer initialization failed:", error);
     loaderStatus.textContent = `Error: ${describeError(error)}`;
-    loaderStatus.style.color = '#ff4444';
+    // An inline style, so no stylesheet overrides it: the light theme needs
+    // its own value here. #b20000 is #ff4444 through the same OKLab lightness
+    // flip the rest of the app's colours go through — a red the visitor can
+    // read on the light loader instead of a pale one they cannot.
+    loaderStatus.style.color = document.documentElement.dataset.theme === 'light'
+      ? '#b20000'
+      : '#ff4444';
   }
 }
 

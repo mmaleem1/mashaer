@@ -13,6 +13,17 @@ import { MAKKAH_PRESETS } from './data/makkahPresets.generated.js';
  *   buildingHeight — estimated height of landmark center above ground (meters)
  */
 export const CITY_POIS = {
+  // Makkah, Madinah and the pilgrimage sites are GENERATED rather than written
+  // here: their coordinates come from OpenStreetMap and their camera framing
+  // from each feature's real extent. Edit scripts/makkah-places.json and run
+  // `npm run build:makkah-presets` — never edit the generated file.
+  //
+  // They come FIRST, and the order here IS the order of the pills in the
+  // location bar. Appended last (as they were), the eight generated presets sat
+  // off the right-hand end of a row that opens on Austin — so the Holy Sites
+  // pill holding Mina, Muzdalifah and Arafat was present, correct, and
+  // invisible without scrolling. The upstream cities follow, unchanged.
+  ...MAKKAH_PRESETS,
   austin: {
     name: 'Austin',
     groundElevation: 150, // meters above WGS84 ellipsoid
@@ -118,11 +129,6 @@ export const CITY_POIS = {
       { name: 'Jefferson Memorial', lat: 38.8814, lon: -77.0365, alt: 400, pitch: -30, heading: 0, buildingHeight: 25 },
     ],
   },
-  // Makkah, Madinah and the pilgrimage sites are GENERATED rather than written
-  // here: their coordinates come from OpenStreetMap and their camera framing
-  // from each feature's real extent. Edit scripts/makkah-places.json and run
-  // `npm run build:makkah-presets` — never edit the generated file.
-  ...MAKKAH_PRESETS,
 };
 
 /**

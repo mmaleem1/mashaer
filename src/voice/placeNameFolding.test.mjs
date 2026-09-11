@@ -74,8 +74,9 @@ test('what a speaker actually says resolves to the right preset', () => {
     ['مدینہ منورہ', 'madinah'],
     ['المدينة', 'madinah'],
     ['طيبة', 'madinah'],
-    ['المشاعر المقدسة', 'mashair'],
-    ['مشاعر', 'mashair'],
+    ['المشاعر المقدسة', 'holy-sites'],
+    ['مشاعر', 'holy-sites'],
+    ['الشرائع', 'makkah-north'],
   ];
 
   for (const [spoken, presetId] of expected) {

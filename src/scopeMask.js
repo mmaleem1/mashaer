@@ -38,8 +38,25 @@ import { getKeyholeGeometry } from './celestialRing.js';
  * canvas work beyond the single clear on the disable transition.
  */
 
-/** Matches the page background the emergent scope faded into. */
+/**
+ * Matches the page background the emergent scope faded into.
+ *
+ * Canvas pixels, so no stylesheet reaches them: the light value is the dark
+ * one put through the same OKLab lightness flip that
+ * scripts/build-light-theme.mjs applies to every CSS colour, which is why the
+ * vignette fades to the light theme\'s ground rather than to black on a white
+ * page. `scopeOutsideColor()` reads the theme stamped on <html> at paint time,
+ * and the theme-change event below repaints.
+ */
 const SCOPE_OUTSIDE_COLOR = { r: 5, g: 5, b: 8 };
+const SCOPE_OUTSIDE_COLOR_LIGHT = { r: 247, g: 247, b: 253 };
+
+/** @returns {{r:number,g:number,b:number}} the vignette colour for the live theme. */
+function scopeOutsideColor() {
+  return globalThis.document?.documentElement?.dataset?.theme === 'light'
+    ? SCOPE_OUTSIDE_COLOR_LIGHT
+    : SCOPE_OUTSIDE_COLOR;
+}
 /**
  * Default edge feather as a fraction of the keyhole radius.
  *
@@ -361,7 +378,7 @@ function draw() {
   _painted = false; // resize+clear wiped the surface; ink goes on below
   const geo = scopeMaskGeometry(width, height, _featherRatio);
   if (!geo) return;
-  const { r, g, b } = SCOPE_OUTSIDE_COLOR;
+  const { r, g, b } = scopeOutsideColor();
   if (geo.outerR - geo.innerR < 1) {
     // Zero/near-zero feather: a radial gradient with equal radii is
     // DEGENERATE in Canvas2D (Chromium paints nothing — browser

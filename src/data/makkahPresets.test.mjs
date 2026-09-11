@@ -17,7 +17,9 @@ const REGION_OF = {
   'makkah-central': 'makkah',
   'makkah-south': 'makkah',
   'makkah-west': 'makkah',
-  mashair: 'makkah',
+  'makkah-haram': 'makkah',
+  'makkah-north': 'makkah',
+  'holy-sites': 'makkah',
   madinah: 'madinah',
 };
 

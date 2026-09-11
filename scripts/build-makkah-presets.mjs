@@ -39,7 +39,7 @@ const OUTPUT = resolve(ROOT, 'src/data/makkahPresets.generated.js');
 // re-run after an edit costs one request per CHANGED place, not per place.
 const NOMINATIM = 'https://nominatim.openstreetmap.org/search';
 const ELEVATION = 'https://api.open-meteo.com/v1/elevation';
-const USER_AGENT = 'MakkahBirdsEyeView/1.0 (preset generator; OSM-bounded geocoding)';
+const USER_AGENT = 'Mashaer/1.0 (preset generator; OSM-bounded geocoding)';
 const REQUEST_GAP_MS = 1200;
 
 // ── Auto-framing ─────────────────────────────────────────────────────────────

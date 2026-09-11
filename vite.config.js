@@ -5674,7 +5674,7 @@ const MASHAER_REALTIME_TOOLS = [
       properties: {
         locationId: {
           type: 'string',
-          enum: ['austin', 'sf', 'nyc', 'tokyo', 'london', 'paris', 'dubai', 'dc', 'makkah', 'makkah-central', 'makkah-south', 'makkah-west', 'mashair', 'madinah'],
+          enum: ['austin', 'sf', 'nyc', 'tokyo', 'london', 'paris', 'dubai', 'dc', 'makkah', 'makkah-central', 'makkah-south', 'makkah-west', 'makkah-haram', 'makkah-north', 'holy-sites', 'madinah'],
           description: 'Known city preset ID. Use when the requested place matches one of these cities.',
         },
         query: {
@@ -5716,7 +5716,7 @@ const MASHAER_REALTIME_TOOLS = [
         },
         locationId: {
           type: 'string',
-          enum: ['austin', 'sf', 'nyc', 'tokyo', 'london', 'paris', 'dubai', 'dc', 'makkah', 'makkah-central', 'makkah-south', 'makkah-west', 'mashair', 'madinah'],
+          enum: ['austin', 'sf', 'nyc', 'tokyo', 'london', 'paris', 'dubai', 'dc', 'makkah', 'makkah-central', 'makkah-south', 'makkah-west', 'makkah-haram', 'makkah-north', 'holy-sites', 'madinah'],
           description: 'Known city preset ID when the place matches one of these cities.',
         },
         locationQuery: {
@@ -6064,7 +6064,7 @@ const MASHAER_REALTIME_TOOLS = [
         },
         locationId: {
           type: 'string',
-          enum: ['austin', 'sf', 'nyc', 'tokyo', 'london', 'paris', 'dubai', 'dc', 'makkah', 'makkah-central', 'makkah-south', 'makkah-west', 'mashair', 'madinah'],
+          enum: ['austin', 'sf', 'nyc', 'tokyo', 'london', 'paris', 'dubai', 'dc', 'makkah', 'makkah-central', 'makkah-south', 'makkah-west', 'makkah-haram', 'makkah-north', 'holy-sites', 'madinah'],
           description: 'Known nearby-city anchor for select.',
         },
         locationQuery: { type: 'string', maxLength: 120, description: 'Place to search near, such as "Austin, Texas" or "Seattle". Selection does not fly the camera.' },

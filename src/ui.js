@@ -212,6 +212,24 @@ const SHARE_PANEL_STATE_SPECS = Object.freeze([
   { id: 'pp-toggles' },
   { id: 'param-slider-panel' },
 ]);
+/**
+ * The width at which style.css switches the HUD from "columns beside the globe"
+ * to "stacked over it". Kept in sync with the `@media (max-width: 720px)` blocks
+ * by `panelStackLayout.test.mjs`; a JS default that disagrees with the layout it
+ * is compensating for is worse than no default at all.
+ */
+const NARROW_LAYOUT_MAX_WIDTH_PX = 720;
+
+/**
+ * True when the stacked, full-width panel layout is in effect.
+ * @returns {boolean} False wherever `matchMedia` is unavailable (tests, SSR),
+ *   which keeps the desktop behaviour as the fallback.
+ */
+function isNarrowLayout() {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
+  return window.matchMedia(`(max-width: ${NARROW_LAYOUT_MAX_WIDTH_PX}px)`).matches;
+}
+
 /** Standard map-view panels cleared out of the way on a fresh Cockpit entry. */
 const COCKPIT_ENTRY_COLLAPSE_PANEL_IDS = Object.freeze([
   'data-panel',
@@ -6729,6 +6747,18 @@ export class StyleManager {
     // first-run mission card for the one first impression there is. A stored
     // choice still wins in both directions, so anyone who opens it keeps it.
     if (panelId === 'pp-toggles' && stored === null) collapsed = true;
+    // CONTEXT starts COLLAPSED for a first-time visitor on a NARROW viewport,
+    // for the same reason and with the same "a stored choice still wins" rule.
+    //
+    // Below the stacked-layout breakpoint the rail is full-width, and an open
+    // Context panel is 255px of "SELECT CONTEXT — nearest planes · vessels ·
+    // sites" placeholder: instructions for a choice the visitor has not made
+    // yet, pinned over a third of a phone screen, in an app whose entire point
+    // is the view underneath. Above the breakpoint it sits in its own column
+    // beside the globe and costs nothing, so the default is unchanged there.
+    if (panelId === 'global-context-panel' && stored === null && isNarrowLayout()) {
+      collapsed = true;
+    }
     panelEl.classList.toggle('collapsed', collapsed);
     this._syncPanelCollapseButton(panelEl);
   }
@@ -6851,6 +6881,30 @@ export class StyleManager {
   }
 
   /**
+   * DISPLAY is the right rail's only remaining panel since CCTV and CONTEXT
+   * were retired (see the dated block at the end of style.css), and on a phone
+   * a lone chip in its own row is exactly the scattered layout this rework
+   * exists to remove. Below 720px it joins DATA LAYERS and SCENES in the left
+   * stack, making ONE three-column row that mirrors the three-wing command
+   * dock at the bottom; at wider widths it returns to the rail, which is where
+   * it has lived since upstream (`<!-- Post-processing toggles (top-right) -->`).
+   *
+   * Re-parenting rather than positioning two containers side by side: the chip
+   * grid already gives an OPEN panel `grid-column: 1 / -1`, and that only works
+   * if every chip is a child of the same grid. Runs from
+   * `_syncRightPanelAdaptiveLayout`, which is already scheduled on resize, so
+   * squeezing a desktop window past 720px moves it both ways.
+   * @returns {void}
+   */
+  _syncDisplayPanelHome() {
+    const panel = this._ppToggles;
+    if (!panel) return;
+    const home = isNarrowLayout() ? this._leftPanelStack : this._rightPanelStack;
+    if (!home || panel.parentElement === home) return;
+    home.prepend(panel);
+  }
+
+  /**
    * Places the right rail inside the visible HUD-safe corridor. When the
    * corridor is too short, the expanded panel receives the remaining height
    * with internal scrolling. Tactical HUD hides collapsed sibling launchers
@@ -6858,6 +6912,7 @@ export class StyleManager {
    * @returns {void}
    */
   _syncRightPanelAdaptiveLayout() {
+    this._syncDisplayPanelHome();
     const stack = this._rightPanelStack;
     if (!stack) return;
 
@@ -9029,9 +9084,16 @@ export class StyleManager {
       btn.classList.toggle('active', btn.dataset.style === styleName);
     });
 
-    // Update style indicator
+    // Update style indicator. It is hidden while the style is `normal`
+    // (2026-09-11, owner): the readout exists to explain why the globe looks
+    // green, thermal or cel-shaded, and "ACTIVE STYLE / NORMAL" answers a
+    // question nobody asked while occupying the top-right corner of every
+    // default session. The element and its text are still maintained — only
+    // the unfiltered case is hidden, so the moment a filter is chosen the
+    // label is there to name it.
     const displayNames = { surveillance: 'NVG', thermal: 'FLIR', retro: 'CRT' };
     this._styleIndicator.textContent = displayNames[styleName] || styleName.toUpperCase();
+    document.getElementById('style-indicator')?.toggleAttribute('hidden', styleName === 'normal');
     this._updateStyleMiniStatus(styleName);
 
     // Update parameter sliders

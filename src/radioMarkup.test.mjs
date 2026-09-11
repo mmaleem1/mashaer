@@ -189,7 +189,11 @@ test('no unchanged Realtime tool definition drifts silently', () => {
   // product name inside several tool descriptions. control_radio is deliberately
   // NOT added to TOUCHED: keeping it inside the digest means the NEXT unreviewed
   // edit to it still fails here, which is the whole point of the guard.
-  assert.equal(digest, 'b500426f561937e5', 'an unchanged Realtime tool definition drifted');
+  //
+  // Re-derived a third time 2026-09-11: control_radio's locationId enum tracked
+  // the preset rename ('mashair' → 'holy-sites') and the two added presets
+  // ('makkah-haram', 'makkah-north'). control_radio STAYS inside the digest.
+  assert.equal(digest, 'bf9c3eb163de50ab', 'an unchanged Realtime tool definition drifted');
 });
 
 test('Radio volume and mission speed share the Sharpen slider visual language', () => {

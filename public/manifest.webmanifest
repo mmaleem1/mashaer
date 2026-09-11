@@ -1,0 +1,35 @@
+{
+  "name": "Mashaer",
+  "short_name": "Mashaer",
+  "description": "A live 3D globe for Makkah, Madinah and the Holy Sites — camera presets, self-flying tours and voice control in English, Arabic and Urdu.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "dir": "ltr",
+  "lang": "en",
+  "categories": ["travel", "education", "navigation"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

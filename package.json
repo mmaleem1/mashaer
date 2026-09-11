@@ -41,8 +41,11 @@
     "test": "node scripts/run-unit-tests.mjs",
     "test:track": "node scripts/track-regression.mjs",
     "qa:map-source-tray": "node scripts/qa-map-source-tray.mjs",
+    "build:app-icons": "node scripts/build-app-icons.mjs",
     "build:makkah-presets": "node scripts/build-makkah-presets.mjs",
-    "check:makkah-presets": "node scripts/build-makkah-presets.mjs --check"
+    "check:makkah-presets": "node scripts/build-makkah-presets.mjs --check",
+    "build:light-theme": "node scripts/build-light-theme.mjs",
+    "check:light-theme": "node scripts/build-light-theme.mjs --check"
   },
   "dependencies": {
     "@mapbox/vector-tile": "^3.0.0",
